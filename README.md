@@ -15,5 +15,5 @@ To Do:
   - Clicking on point on line chart should update most changed files to just that month.
   
 3. Design
-  - Improve aesthetic of project.
+  - Improve aesthetic of web application.
   
