@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 from app import app
 
 layout = html.Div(className="body", children=[
-    html.H2('Visualizing Change Data in GitHub Repositories', className='header'),
+    html.H1('Visualizing Change Data in GitHub Repositories', className='header'),
     html.Nav(className="navbar", children=[
         html.A('Home', href='/apps/home'),
         html.A('Extractor', href='/apps/extractor'),

@@ -4,6 +4,7 @@ import pandas as pd
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 
 from app import app
 
@@ -18,32 +19,32 @@ styles = {
 }
 
 layout = html.Div([
-    html.H2('Visualizing Change Data in GitHub Repositories', className='header'),
+    html.H1('Visualizing Change Data in GitHub Repositories', className='header'),
     html.Nav(className="navbar", children=[
         html.A('Home', href='/apps/home'),
         html.A('Extractor', href='/apps/extractor'),
         html.A('Visualizer', href='/apps/visualizer')
     ]),
 
+    html.H4('Select a repository to inspect...', className='title'),
     dcc.Dropdown(
         id='repositorytitle',
         options=[{'label': i, 'value': i} for i in available_repositories],
-        # value=available_repositories[0]
+        value=available_repositories[0],
         placeholder='Select a Repository to Visualize...'
     ),
 
-    dcc.Graph(id='linechart'),
 
-    html.Div([
-        html.Div([
-            dcc.Graph(id='filechart')
-        ], className="side"),
+    html.Div(className='container', children=[
+        dbc.Row(
+            [
+                dbc.Col(dcc.Graph(id='linechart')),
+                dbc.Col(dcc.Graph(id='filechart')),
+            ]
+        ),
+    ]),
 
-        html.Div([
-            dcc.Graph(id='filechartinterval')
-        ], className="main"),
-    ], className="row"),
-
+    dcc.Graph(id='filechartinterval'),
     html.Div(className='footer', children='Footer'),
 ])
 
@@ -70,7 +71,7 @@ def createlinechart(dates, totals, adds, dels):
             },
         ],
         'layout': {
-            'title': 'Change over time',
+            'title': 'Line Changes per Month (Click point to update Graph Below)',
             'clickmode': 'event+select'
         }
     }
@@ -100,12 +101,8 @@ def createfilechart(filenames, filetotals, fileadds, filedels, title):
         'layout': {
             'title': 'Files with Greatest Total Change: ' + title,
             'margin': dict(
-                l=20,
-                r=20,
-                b=200,
-                t=50,
-                pad=4
-             )
+                b=100
+            )
         }
     }
 
@@ -141,10 +138,10 @@ def updatefilechart(repotitle):
     filetotals = df['Total'].tolist()
     fileadds = df['Additions'].tolist()
     filedels = df['Deletions'].tolist()
-    del filenames[20:]
-    del filetotals[20:]
-    del fileadds[20:]
-    del filedels[20:]
+    del filenames[10:]
+    del filetotals[10:]
+    del fileadds[10:]
+    del filedels[10:]
     return createfilechart(filenames, filetotals, fileadds, filedels, title)
 
 @app.callback(
@@ -156,6 +153,11 @@ def updatefilechart(clickData, repotitle):
     month = "    "
     if clickData is not None:
         month = clickData['points'][0]['x']
+        df = df.loc[df['Date'] == month]
+        month = month[:-3]
+    else:
+        months = df['Date'].tolist()
+        month = months[0]
         df = df.loc[df['Date'] == month]
         month = month[:-3]
     df = df.groupby("Filename").sum()

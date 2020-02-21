@@ -1,9 +1,10 @@
 body {
-    font-family: sans-serif;
-    margin: 0;
+  font-family: sans-serif;
+  margin: 0;
+  background-color: #f1f1f1;
 }
 h1, h2, h3, h4, h5, h6 {
-    color: black;
+  color: black;
 }
 
 .header {
@@ -17,6 +18,7 @@ h1, h2, h3, h4, h5, h6 {
 .navbar {
   overflow: hidden;
   background-color: #333;
+  margin-bottom: 20px;
 }
 
 .navbar a {
@@ -33,8 +35,18 @@ h1, h2, h3, h4, h5, h6 {
   color: black;
 }
 
+.title {
+  background-color: #f1f1f1;
+  padding: 0px 5px;
+}
+
 #repositorytitle {
-  margin: 20px;
+  padding: 0px 5px;
+}
+
+.table {
+  align-content: center;
+  background-color: #f1f1f1;
 }
 
 .row {
@@ -44,21 +56,19 @@ h1, h2, h3, h4, h5, h6 {
   flex-wrap: wrap;
 }
 
-/* Create two unequal columns that sits next to each other */
-/* Sidebar/left column */
-.side {
-  -ms-flex: 50%; /* IE10 */
-  flex: 50%;
+#linechart {
   background-color: #f1f1f1;
-  padding: 20px;
+  padding: 60px;
 }
 
-/* Main column */
-.main {
-  -ms-flex: 50%; /* IE10 */
-  flex: 50%;
-  background-color: white;
-  padding: 20px;
+#filechart {
+  background-color: #f1f1f1;
+  padding: 60px;
+}
+
+#filechartinterval {
+  background-color: #f1f1f1;
+  padding: 60px;
 }
 
 .footer {
