@@ -1,5 +1,3 @@
-import json
-from textwrap import dedent as d
 import pandas as pd
 import dash_core_components as dcc
 import dash_html_components as html
@@ -20,11 +18,19 @@ styles = {
 
 layout = html.Div([
     html.H1('Visualizing Change Data in GitHub Repositories', className='header'),
-    html.Nav(className="navbar", children=[
-        html.A('Home', href='/apps/home'),
-        html.A('Extractor', href='/apps/extractor'),
-        html.A('Visualizer', href='/apps/visualizer')
-    ]),
+    dbc.Nav(
+        [
+            dbc.NavItem(dbc.NavLink('Home', href='/apps/home')),
+            dbc.NavItem(dbc.NavLink('Extractor', href='/apps/extractor')),
+            dbc.NavItem(dbc.NavLink('Visualizer', active=True, href='/apps/visualizer')),
+        ],
+        pills=True,
+        style={
+            'background-color': '#333',
+            'margin-bottom': '20px',
+            'padding': '10px'
+        }
+    ),
 
     html.H4('Select a repository to inspect...', className='title'),
     dcc.Dropdown(
@@ -34,19 +40,25 @@ layout = html.Div([
         placeholder='Select a Repository to Visualize...'
     ),
 
+    # dcc.Graph(id='linechart'),
 
-    html.Div(className='container', children=[
-        dbc.Row(
-            [
-                dbc.Col(dcc.Graph(id='linechart')),
-                dbc.Col(dcc.Graph(id='filechart')),
-            ]
-        ),
+    dbc.Row(className='top', children=[
+        dbc.Col(dcc.Graph(id='linechart')),
+        dbc.Col(dcc.Graph(id='filecharthover')),
     ]),
 
-    dcc.Graph(id='filechartinterval'),
-    html.Div(className='footer', children='Footer'),
+    dbc.Row(
+        [
+            dbc.Col(dcc.Graph(id='filechartinterval')),
+            dbc.Col(dcc.Graph(id='filechartinterval2')),
+            dbc.Col(dcc.Graph(id='filechartinterval3')),
+        ]
+    ),
+
+    # dcc.Graph(id='filechart'),
+    html.Div(className='footer', children=[html.A('GitHub', href='https://github.com/CiaranCarroll1/FYP')]),
 ])
+
 
 def createlinechart(dates, totals, adds, dels):
     return {
@@ -71,12 +83,16 @@ def createlinechart(dates, totals, adds, dels):
             },
         ],
         'layout': {
-            'title': 'Line Changes per Month (Click point to update Graph Below)',
-            'clickmode': 'event+select'
+            'title': 'Line Changes per Month (Click point to update Chart to Right)',
+            'clickmode': 'event+select',
+            # "plot_bgcolor": "rgb(0, 0, 0)",
+            'paper_bgcolor': 'rgba(0,0,0,0)',
+            # 'height': 400
         }
     }
 
-def createfilechart(filenames, filetotals, fileadds, filedels, title):
+
+def createfilechart(filenames, filetotals, title):
     return {
         'data': [
             {
@@ -85,26 +101,14 @@ def createfilechart(filenames, filetotals, fileadds, filedels, title):
                 'type': 'bar',
                 'name': 'Total',
             },
-            {
-                'x': filenames,
-                'y': fileadds,
-                'type': 'bar',
-                'name': 'Additions',
-            },
-            {
-                'x': filenames,
-                'y': filedels,
-                'type': 'bar',
-                'name': 'Deletions',
-            },
         ],
         'layout': {
-            'title': 'Files with Greatest Total Change: ' + title,
-            'margin': dict(
-                b=100
-            )
+            'title': 'Files with Greatest Line Changes: ' + title,
+            'paper_bgcolor': 'rgba(0,0,0,0)',
+            # 'margin': dict(b=100)
         }
     }
+
 
 @app.callback(
     Output('linechart', 'figure'),
@@ -126,6 +130,7 @@ def updatelinechart(repotitle):
     dels = df['Deletions'].tolist()
     return createlinechart(dates, totals, adds, dels)
 
+
 @app.callback(
     Output('filechart', 'figure'),
     [Input('repositorytitle', 'value')])
@@ -138,36 +143,60 @@ def updatefilechart(repotitle):
     filetotals = df['Total'].tolist()
     fileadds = df['Additions'].tolist()
     filedels = df['Deletions'].tolist()
-    del filenames[10:]
-    del filetotals[10:]
-    del fileadds[10:]
-    del filedels[10:]
+    del filenames[20:]
+    del filetotals[20:]
+    del fileadds[20:]
+    del filedels[20:]
     return createfilechart(filenames, filetotals, fileadds, filedels, title)
 
-@app.callback(
+
+@app.callback([
     Output('filechartinterval', 'figure'),
+    Output('filechartinterval2', 'figure'),
+    Output('filechartinterval3', 'figure')],
     [Input('linechart', 'clickData'),
      Input('repositorytitle', 'value')])
 def updatefilechart(clickData, repotitle):
     df = pd.read_csv("./repositories/" + repotitle + ".csv")
-    month = "    "
     if clickData is not None:
         month = clickData['points'][0]['x']
         df = df.loc[df['Date'] == month]
         month = month[:-3]
     else:
         months = df['Date'].tolist()
-        month = months[0]
+        month = months[len(months) - 1]
         df = df.loc[df['Date'] == month]
         month = month[:-3]
     df = df.groupby("Filename").sum()
     df = df.sort_values(by=['Total'], ascending=False)
     filenames = df.index.tolist()
     filetotals = df['Total'].tolist()
-    fileadds = df['Additions'].tolist()
-    filedels = df['Deletions'].tolist()
-    del filenames[20:]
-    del filetotals[20:]
-    del fileadds[20:]
-    del filedels[20:]
-    return createfilechart(filenames, filetotals, fileadds, filedels, month)
+    del filenames[10:]
+    del filetotals[10:]
+    return createfilechart(filenames, filetotals, month), createfilechart(filenames, filetotals,
+                                                                          month), createfilechart(filenames, filetotals,
+                                                                                                  month)
+
+
+@app.callback(
+    Output('filecharthover', 'figure'),
+    [Input('linechart', 'hoverData'),
+     Input('repositorytitle', 'value')])
+def updatefilechart(hoverData, repotitle):
+    df = pd.read_csv("./repositories/" + repotitle + ".csv")
+    if hoverData is not None:
+        month = hoverData['points'][0]['x']
+        df = df.loc[df['Date'] == month]
+        month = month[:-3]
+    else:
+        months = df['Date'].tolist()
+        month = months[len(months) - 1]
+        df = df.loc[df['Date'] == month]
+        month = month[:-3]
+    df = df.groupby("Filename").sum()
+    df = df.sort_values(by=['Total'], ascending=False)
+    filenames = df.index.tolist()
+    filetotals = df['Total'].tolist()
+    del filenames[10:]
+    del filetotals[10:]
+    return createfilechart(filenames, filetotals, month)
