@@ -47,11 +47,23 @@ layout = html.Div([
         dbc.Col(dcc.Graph(id='filecharthover')),
     ]),
 
+    # html.Div(id='month1', style={'display': 'none'}),
+    # html.Div(id='month2', style={'display': 'none'}),
+    # html.Div(id='month3', style={'display': 'none'}),
+
     dbc.Row(
         [
-            dbc.Col(dcc.Graph(id='filechartinterval')),
-            dbc.Col(dcc.Graph(id='filechartinterval2')),
-            dbc.Col(dcc.Graph(id='filechartinterval3')),
+            dbc.Col(dcc.Dropdown(id='month1', placeholder='Select Month to Compare')),
+            dbc.Col(dcc.Dropdown(id='month2', placeholder='Select Month to Compare')),
+            dbc.Col(dcc.Dropdown(id='month3', placeholder='Select Month to Compare')),
+        ]
+    ),
+
+    dbc.Row(
+        [
+            dbc.Col(dcc.Graph(id='filechartmonth1')),
+            dbc.Col(dcc.Graph(id='filechartmonth2')),
+            dbc.Col(dcc.Graph(id='filechartmonth3')),
         ]
     ),
 
@@ -83,11 +95,14 @@ def createlinechart(dates, totals, adds, dels):
             },
         ],
         'layout': {
-            'title': 'Line Changes per Month (Click point to update Chart to Right)',
+            'title': 'Line Changes per Month',
             'clickmode': 'event+select',
-            # "plot_bgcolor": "rgb(0, 0, 0)",
+            # 'plot_bgcolor': 'rgb(0,255,255)',
             'paper_bgcolor': 'rgba(0,0,0,0)',
             # 'height': 400
+            'margin': dict(
+                b=100
+            )
         }
     }
 
@@ -105,15 +120,27 @@ def createfilechart(filenames, filetotals, title):
         'layout': {
             'title': 'Files with Greatest Line Changes: ' + title,
             'paper_bgcolor': 'rgba(0,0,0,0)',
-            # 'margin': dict(b=100)
+            # 'plot_bgcolor': 'rgb(0, 0, 0)',
+            'margin': dict(
+                b=100
+            )
         }
     }
 
 
 @app.callback(
+    Output('repositorytitle', 'options'),
+    [Input('repositorytitle', 'value')])
+def update_dropdown(repotitle):
+    repos = pd.read_csv("./repos.csv")
+    available_repos = repos['Name'].unique()
+    return [{'label': i, 'value': i} for i in available_repos]
+
+
+@app.callback(
     Output('linechart', 'figure'),
     [Input('repositorytitle', 'value')])
-def updatelinechart(repotitle):
+def update_linechart(repotitle):
     df = pd.read_csv("./repositories/" + repotitle + ".csv")
     df['Date'] = pd.to_datetime(df['Date'])
     df.index = df['Date']
@@ -134,55 +161,100 @@ def updatelinechart(repotitle):
 @app.callback(
     Output('filechart', 'figure'),
     [Input('repositorytitle', 'value')])
-def updatefilechart(repotitle):
+def update_filechart(repotitle):
     title = "Full lifecycle"
     df = pd.read_csv("./repositories/" + repotitle + ".csv")
     df = df.groupby("Filename").sum()
     df = df.sort_values(by=['Total'], ascending=False)
     filenames = df.index.tolist()
     filetotals = df['Total'].tolist()
-    fileadds = df['Additions'].tolist()
-    filedels = df['Deletions'].tolist()
     del filenames[20:]
     del filetotals[20:]
-    del fileadds[20:]
-    del filedels[20:]
-    return createfilechart(filenames, filetotals, fileadds, filedels, title)
+    return createfilechart(filenames, filetotals, title)
 
 
 @app.callback([
-    Output('filechartinterval', 'figure'),
-    Output('filechartinterval2', 'figure'),
-    Output('filechartinterval3', 'figure')],
-    [Input('linechart', 'clickData'),
-     Input('repositorytitle', 'value')])
-def updatefilechart(clickData, repotitle):
+    Output('month1', 'options'),
+    Output('month2', 'options'),
+    Output('month3', 'options'),
+    ],
+     [Input('repositorytitle', 'value')])
+def update_month_dropdowns(repotitle):
     df = pd.read_csv("./repositories/" + repotitle + ".csv")
-    if clickData is not None:
-        month = clickData['points'][0]['x']
-        df = df.loc[df['Date'] == month]
-        month = month[:-3]
+    months = df['Date'].unique()
+    new_months = [x[:-3] for x in months]
+    return [{'label': i, 'value': i} for i in new_months], \
+           [{'label': i, 'value': i} for i in new_months], \
+           [{'label': i, 'value': i} for i in new_months]
+
+
+
+@app.callback(
+    Output('filechartmonth1', 'figure'),
+    [Input('repositorytitle', 'value'),
+     Input('month1', 'value')])
+def update_filechart_1(repotitle, month):
+    if month is None:
+        return {'data': []}
     else:
-        months = df['Date'].tolist()
-        month = months[len(months) - 1]
+        df = pd.read_csv("./repositories/" + repotitle + ".csv")
+        month = month + "-01"
         df = df.loc[df['Date'] == month]
         month = month[:-3]
-    df = df.groupby("Filename").sum()
-    df = df.sort_values(by=['Total'], ascending=False)
-    filenames = df.index.tolist()
-    filetotals = df['Total'].tolist()
-    del filenames[10:]
-    del filetotals[10:]
-    return createfilechart(filenames, filetotals, month), createfilechart(filenames, filetotals,
-                                                                          month), createfilechart(filenames, filetotals,
-                                                                                                  month)
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Total'], ascending=False)
+        filenames = df.index.tolist()
+        filetotals = df['Total'].tolist()
+        del filenames[10:]
+        del filetotals[10:]
+        return createfilechart(filenames, filetotals, month)
+
+@app.callback(
+    Output('filechartmonth2', 'figure'),
+    [Input('repositorytitle', 'value'),
+     Input('month2', 'value')])
+def update_filechart_1(repotitle, month):
+    if month is None:
+        return {'data': []}
+    else:
+        df = pd.read_csv("./repositories/" + repotitle + ".csv")
+        month = month + "-01"
+        df = df.loc[df['Date'] == month]
+        month = month[:-3]
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Total'], ascending=False)
+        filenames = df.index.tolist()
+        filetotals = df['Total'].tolist()
+        del filenames[10:]
+        del filetotals[10:]
+        return createfilechart(filenames, filetotals, month)
+
+@app.callback(
+    Output('filechartmonth3', 'figure'),
+    [Input('repositorytitle', 'value'),
+     Input('month3', 'value')])
+def update_filechart_1(repotitle, month):
+    if month is None:
+        return {'data': []}
+    else:
+        df = pd.read_csv("./repositories/" + repotitle + ".csv")
+        month = month + "-01"
+        df = df.loc[df['Date'] == month]
+        month = month[:-3]
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Total'], ascending=False)
+        filenames = df.index.tolist()
+        filetotals = df['Total'].tolist()
+        del filenames[10:]
+        del filetotals[10:]
+        return createfilechart(filenames, filetotals, month)
 
 
 @app.callback(
     Output('filecharthover', 'figure'),
     [Input('linechart', 'hoverData'),
      Input('repositorytitle', 'value')])
-def updatefilechart(hoverData, repotitle):
+def update_filechart_hover(hoverData, repotitle):
     df = pd.read_csv("./repositories/" + repotitle + ".csv")
     if hoverData is not None:
         month = hoverData['points'][0]['x']
