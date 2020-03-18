@@ -1,7 +1,6 @@
 Date,Filename,Total,Additions,Deletions
 2019-10-01,MainActivity.java,32,16,16
 2019-10-01,TestCircleWheelViewActivity.java,50,50,0
-2019-10-01,gradle-wrapper.properties,4,2,2
 2019-10-01,OptionsPickerBuilder.java,21,21,0
 2019-10-01,TimePickerBuilder.java,20,20,0
 2019-10-01,PickerOptions.java,4,2,2
@@ -12,7 +11,6 @@ Date,Filename,Total,Additions,Deletions
 2019-10-01,WheelView.java,130,85,45
 2019-10-01,MainActivity.java,32,16,16
 2019-10-01,TestCircleWheelViewActivity.java,50,50,0
-2019-10-01,gradle-wrapper.properties,4,2,2
 2019-10-01,OptionsPickerBuilder.java,21,21,0
 2019-10-01,TimePickerBuilder.java,20,20,0
 2019-10-01,PickerOptions.java,4,2,2
@@ -31,7 +29,6 @@ Date,Filename,Total,Additions,Deletions
 2019-10-01,MainActivity.java,11,8,3
 2019-10-01,TestCircleWheelViewActivity.java,50,50,0
 2019-10-01,WheelView.java,27,26,1
-2019-10-01,gradle-wrapper.properties,4,2,2
 2019-10-01,MainActivity.java,2,2,0
 2019-10-01,OptionsPickerBuilder.java,21,21,0
 2019-10-01,TimePickerBuilder.java,20,20,0
@@ -54,9 +51,7 @@ Date,Filename,Total,Additions,Deletions
 2019-04-01,TestImport.java,8,0,8
 2019-04-01,WheelTime.java,4,2,2
 2019-04-01,TestImport.java,8,8,0
-2019-04-01,gradle-wrapper.properties,2,1,1
 2019-04-01,TestImport.java,8,8,0
-2019-04-01,gradle-wrapper.properties,2,1,1
 2019-03-01,WheelTime.java,4,2,2
 2019-01-01,JsonDataActivity.java,45,28,17
 2019-01-01,MainActivity.java,10,9,1
@@ -136,7 +131,6 @@ Date,Filename,Total,Additions,Deletions
 2018-03-01,CardBean.java,3,2,1
 2018-03-01,JsonBean.java,6,3,3
 2018-03-01,ProvinceBean.java,3,2,1
-2018-03-01,gradle-wrapper.properties,4,2,2
 2018-03-01,OptionsPickerView.java,561,0,561
 2018-03-01,TimePickerView.java,624,0,624
 2018-03-01,ArrayWheelAdapter.java,21,5,16
@@ -160,8 +154,6 @@ Date,Filename,Total,Additions,Deletions
 2018-03-01,TimePickerView.java,273,273,0
 2018-03-01,WheelOptions.java,172,111,61
 2018-03-01,WheelTime.java,202,107,95
-2018-03-01,.gitignore,1,1,0
-2018-03-01,proguard-rules.pro,25,25,0
 2018-03-01,ExampleInstrumentedTest.java,26,26,0
 2018-03-01,WheelAdapter.java,49,25,24
 2018-03-01,IPickerViewData.java,2,1,1
@@ -226,27 +218,17 @@ Date,Filename,Total,Additions,Deletions
 2018-03-01,PickerOptions.java,40,19,21
 2018-03-01,BasePickerView.java,16,7,9
 2018-03-01,WheelOptions.java,54,26,28
-2018-03-01,proguard-rules.pro,2,1,1
 2018-03-01,MainActivity.java,2,1,1
-2018-03-01,gradlew,4,2,2
-2018-03-01,gradlew.bat,2,1,1
-2018-03-01,proguard-rules.pro,2,1,1
 2018-03-01,OptionsPickerView.java,19,0,19
 2018-03-01,TimePickerView.java,43,5,38
 2018-03-01,PickerOptions.java,26,14,12
 2018-03-01,PickerViewAnimateUtil.java,2,1,1
 2018-03-01,BasePickerView.java,7,4,3
-2018-03-01,proguard-rules.pro,2,1,1
-2018-03-01,proguard-rules.pro,2,1,1
-2018-03-01,gradlew,4,2,2
-2018-03-01,gradlew.bat,2,1,1
-2018-03-01,proguard-rules.pro,2,1,1
 2018-03-01,OptionsPickerView.java,205,91,114
 2018-03-01,TimePickerView.java,333,132,201
 2018-03-01,Options.java,79,0,79
 2018-03-01,PickerOptions.java,116,116,0
 2018-03-01,BasePickerView.java,24,8,16
-2018-03-01,proguard-rules.pro,2,1,1
 2018-03-01,OptionsPickerView.java,287,101,186
 2018-03-01,Options.java,79,79,0
 2018-03-01,BasePickerView.java,36,4,32
@@ -270,7 +252,6 @@ Date,Filename,Total,Additions,Deletions
 2018-01-01,WheelOptions.java,16,4,12
 2018-01-01,JsonDataActivity.java,63,27,36
 2018-01-01,MainActivity.java,40,3,37
-2018-01-01,gradle-wrapper.properties,4,2,2
 2018-01-01,WheelAdapter.java,2,1,1
 2018-01-01,InertiaTimerTask.java,30,15,15
 2018-01-01,MessageHandler.java,2,1,1
@@ -313,8 +294,6 @@ Date,Filename,Total,Additions,Deletions
 2017-12-01,LoopViewGestureListener.java,18,0,18
 2017-12-01,OnItemSelectedRunnable.java,14,0,14
 2017-12-01,SmoothScrollTimerTask.java,62,0,62
-2017-12-01,.gitignore,1,1,0
-2017-12-01,proguard-rules.pro,25,25,0
 2017-12-01,ExampleInstrumentedTest.java,26,26,0
 2017-12-01,IPickerViewData.java,8,8,0
 2017-12-01,InertiaTimerTask.java,69,69,0
@@ -334,11 +313,7 @@ Date,Filename,Total,Additions,Deletions
 2017-12-01,BasePickerView.java,12,8,4
 2017-12-01,WheelOptions.java,42,24,18
 2017-12-01,WheelTime.java,28,17,11
-2017-12-01,Screen Shot 2017-11-09 at 4.25.02 PM.png,0,0,0
-2017-12-01,lunar.gif,0,0,0
-2017-11-01,Screen Shot 2017-11-09 at 4.25.02 PM.png,0,0,0
 2017-11-01,ChinaDate.java,3,2,1
-2017-11-01,lunar.gif,0,0,0
 2017-11-01,MainActivity.java,2,1,1
 2017-11-01,WheelTime.java,20,9,11
 2017-11-01,MainActivity.java,2,1,1
@@ -350,8 +325,6 @@ Date,Filename,Total,Additions,Deletions
 2017-11-01,TimePickerView.java,19,19,0
 2017-11-01,WheelView.java,18,16,2
 2017-11-01,WheelTime.java,8,8,0
-2017-11-01,Screen Shot 2017-11-09 at 4.25.02 PM.png,0,0,0
-2017-11-01,Screen Shot 2017-11-09 at 4.25.02 PM.png,0,0,0
 2017-11-01,MainActivity.java,5,4,1
 2017-11-01,TimePickerView.java,19,19,0
 2017-11-01,WheelView.java,18,16,2
@@ -427,7 +400,6 @@ Date,Filename,Total,Additions,Deletions
 2017-08-01,LunarCalendar.java,429,429,0
 2017-08-01,BasePickerView.java,1,1,0
 2017-08-01,WheelTime.java,206,205,1
-2017-07-01,LICENSE,201,201,0
 2017-07-01,WheelView.java,9,9,0
 2017-07-01,WheelOptions.java,21,16,5
 2017-06-01,WheelView.java,9,9,0
@@ -444,7 +416,6 @@ Date,Filename,Total,Additions,Deletions
 2017-05-01,BasePickerView.java,103,63,40
 2017-05-01,MainActivity.java,9,5,4
 2017-05-01,TestFragment.java,2,1,1
-2017-05-01,gradle-wrapper.properties,4,2,2
 2017-05-01,TestFragment.java,2,1,1
 2017-05-01,MainActivity.java,47,25,22
 2017-05-01,TimePickerView.java,36,16,20
@@ -527,13 +498,8 @@ Date,Filename,Total,Additions,Deletions
 2017-03-01,MainActivity.java,17,9,8
 2017-03-01,WheelView.java,9,5,4
 2017-03-01,BasePickerView.java,1,1,0
-2017-03-01,CustomLayout.gif,0,0,0
-2017-03-01,JsonData.gif,0,0,0
-2017-03-01,timepicker.gif,0,0,0
-2017-03-01,timepicker_night.gif,0,0,0
 2017-03-01,BasePickerView.java,9,9,0
 2017-03-01,JsonDataActivity.java,2,1,1
-2017-03-01,province.json,67,41,26
 2017-03-01,JsonDataActivity.java,3,3,0
 2017-03-01,WheelView.java,3,2,1
 2017-03-01,MainActivity.java,16,9,7
@@ -544,7 +510,6 @@ Date,Filename,Total,Additions,Deletions
 2017-03-01,MainActivity.java,16,9,7
 2017-03-01,TimePickerView.java,10,8,2
 2017-03-01,WheelTime.java,3,0,3
-2017-03-01,province.json,5339,5339,0
 2017-03-01,GetJsonDataUtil.java,38,38,0
 2017-03-01,JsonDataActivity.java,196,196,0
 2017-03-01,MainActivity.java,13,9,4
@@ -591,7 +556,6 @@ Date,Filename,Total,Additions,Deletions
 2017-03-01,OptionsPickerView.java,6,4,2
 2017-03-01,MainActivity.java,126,91,35
 2017-03-01,CardBean.java,40,40,0
-2017-03-01,to_down.png,0,0,0
 2017-03-01,OptionsPickerView.java,193,108,85
 2017-03-01,TimePickerView.java,108,64,44
 2017-03-01,CustomListener.java,13,13,0
@@ -616,7 +580,6 @@ Date,Filename,Total,Additions,Deletions
 2017-03-01,WheelTime.java,123,78,45
 2017-03-01,MainActivity.java,131,92,39
 2017-03-01,CardBean.java,40,40,0
-2017-03-01,to_down.png,0,0,0
 2017-03-01,OptionsPickerView.java,194,109,85
 2017-03-01,TimePickerView.java,114,65,49
 2017-03-01,CustomListener.java,13,13,0
@@ -706,7 +669,6 @@ Date,Filename,Total,Additions,Deletions
 2017-02-01,OptionsPickerView.java,8,4,4
 2017-02-01,WheelOptions.java,15,7,8
 2017-02-01,MainActivity.java,215,134,81
-2017-02-01,gradle-wrapper.properties,2,1,1
 2017-02-01,OptionsPickerView.java,363,270,93
 2017-02-01,TimePickerView.java,326,253,73
 2017-02-01,WheelView.java,67,42,25
@@ -742,7 +704,6 @@ Date,Filename,Total,Additions,Deletions
 2017-02-01,WheelView.java,5,3,2
 2017-02-01,BasePickerView.java,2,1,1
 2017-02-01,WheelView.java,7,4,3
-2017-02-01,gradle-wrapper.properties,2,1,1
 2017-02-01,MainActivity.java,7,2,5
 2017-02-01,BasePickerView.java,26,26,0
 2017-02-01,MainActivity.java,14,7,7
@@ -794,7 +755,6 @@ Date,Filename,Total,Additions,Deletions
 2016-07-01,IPickData.java,9,9,0
 2016-07-01,MainActivity.java,2,1,1
 2016-07-01,WheelTime.java,3,0,3
-2016-07-01,gradle-wrapper.properties,4,2,2
 2016-07-01,WheelView.java,12,6,6
 2016-01-01,WheelView.java,41,23,18
 2015-12-01,MainActivity.java,2,1,1
@@ -817,8 +777,6 @@ Date,Filename,Total,Additions,Deletions
 2015-11-01,ProvinceBean.java,1,1,0
 2015-11-01,SmoothScrollTimerTask.java,13,13,0
 2015-11-01,WheelView.java,89,56,33
-2015-11-01,pickerdemo.gif,0,0,0
-2015-11-01,pickerdemo.gif,0,0,0
 2015-11-01,MainActivity.java,44,17,27
 2015-11-01,OptionsPickerView.java,148,148,0
 2015-11-01,OptionsPopupWindow.java,167,0,167
@@ -835,9 +793,6 @@ Date,Filename,Total,Additions,Deletions
 2015-11-01,BasePickerView.java,168,168,0
 2015-11-01,WheelOptions.java,5,4,1
 2015-11-01,WheelTime.java,7,5,2
-2015-11-01,pickerdemo.gif,0,0,0
-2015-11-01,pickerdemo.gif,0,0,0
-2015-11-01,pickerdemo1x.gif,0,0,0
 2015-11-01,MainActivity.java,63,54,9
 2015-11-01,ProvinceBean.java,55,55,0
 2015-11-01,OptionsPopupWindow.java,36,23,13
@@ -858,31 +813,11 @@ Date,Filename,Total,Additions,Deletions
 2015-11-01,WheelOptions.java,115,80,35
 2015-11-01,WheelTime.java,46,22,24
 2015-11-01,WheelView.java,1567,545,1022
-2015-11-01,bg_above_timepicker.png,0,0,0
-2015-11-01,bg_line_timepicker.png,0,0,0
 2015-10-01,MainActivity.java,3,2,1
 2015-10-01,TimePopupWindow.java,2,1,1
 2015-10-01,WheelTime.java,8,7,1
-2015-08-01,.classpath,9,0,9
-2015-08-01,.gitignore,33,33,0
-2015-08-01,.project,33,0,33
-2015-08-01,org.eclipse.core.resources.prefs,2,0,2
-2015-08-01,org.eclipse.jdt.core.prefs,4,0,4
-2015-08-01,.gitignore,1,1,0
-2015-08-01,proguard-rules.pro,9,3,6
 2015-08-01,ApplicationTest.java,13,13,0
 2015-08-01,MainActivity.java,132,132,0
-2015-08-01,ic_launcher.png,0,0,0
-2015-08-01,ic_launcher.png,0,0,0
-2015-08-01,ic_launcher.png,0,0,0
-2015-08-01,ic_launcher.png,0,0,0
-2015-08-01,gradle.properties,18,18,0
-2015-08-01,gradle-wrapper.jar,0,0,0
-2015-08-01,gradle-wrapper.properties,6,6,0
-2015-08-01,gradlew,164,164,0
-2015-08-01,gradlew.bat,90,90,0
-2015-08-01,.gitignore,1,1,0
-2015-08-01,proguard-rules.pro,17,17,0
 2015-08-01,ApplicationTest.java,13,13,0
 2015-08-01,OptionsPopupWindow.java,7,3,4
 2015-08-01,TimePopupWindow.java,6,3,3
@@ -896,12 +831,7 @@ Date,Filename,Total,Additions,Deletions
 2015-08-01,WheelOptions.java,6,2,4
 2015-08-01,WheelTime.java,16,8,8
 2015-08-01,WheelView.java,6,3,3
-2015-08-01,bg_above_timepicker.png,0,0,0
-2015-08-01,bg_line_timepicker.png,0,0,0
 2015-08-01,MainActivity.java,134,0,134
-2015-08-01,pickerdemo.gif,0,0,0
-2015-08-01,pickerdemo_zhangshangshenghuo.gif,0,0,0
-2015-08-01,project.properties,15,0,15
 2015-07-01,WheelTime.java,29,25,4
 2015-07-01,WheelView.java,2,1,1
 2015-07-01,WheelView.java,5,3,2
@@ -910,15 +840,7 @@ Date,Filename,Total,Additions,Deletions
 2014-12-01,ArrayWheelAdapter.java,2,1,1
 2014-12-01,WheelOptions.java,5,4,1
 2014-12-01,WheelView.java,8,4,4
-2014-12-01,.classpath,9,9,0
-2014-12-01,.project,33,33,0
-2014-12-01,org.eclipse.core.resources.prefs,2,2,0
-2014-12-01,org.eclipse.jdt.core.prefs,4,4,0
 2014-12-01,MainActivity.java,134,134,0
-2014-12-01,pickerdemo.gif,0,0,0
-2014-12-01,project.properties,15,15,0
-2014-12-01,bg_above_timepicker.png,0,0,0
-2014-12-01,bg_line_timepicker.png,0,0,0
 2014-12-01,OptionsPopupWindow.java,158,158,0
 2014-12-01,TimePopupWindow.java,165,165,0
 2014-12-01,ArrayWheelAdapter.java,55,55,0

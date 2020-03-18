@@ -10,7 +10,6 @@ import dash_bootstrap_components as dbc
 
 from app import app
 
-extensionsToCheck = ('.pdf', '.doc', '.xls', '.gradle', '.txt', '.md', '.xml', '.project')
 ACCESS_TOKEN = '821f643807b3d0078f309d35531c7e59d577aa43'
 g = Github(ACCESS_TOKEN)
 
@@ -93,6 +92,8 @@ def extract_data(value):
     reposdf = pd.read_csv("./repos.csv")
     repositories = reposdf['Name'].tolist()
     repo = g.get_repo(value)
+    languages = repo.get_languages()
+    lang_exts = get_extensions(languages)
     value = value.replace("/", "_")
     dates = []
     filenames = []
@@ -109,7 +110,7 @@ def extract_data(value):
 
         for file in files:
             fname = file.filename
-            if not fname.endswith(extensionsToCheck):
+            if fname.endswith(tuple(lang_exts)):
                 dates.append(date)
                 if '/' in fname:
                     fsplit = fname.split('/')
@@ -130,6 +131,34 @@ def extract_data(value):
     dfr = pd.DataFrame(data=datar)
 
     dfr.to_csv('./repos.csv', index=False)
+
+def get_extensions(languages):
+    extensions = []
+    for x in languages:
+        if x == 'Python':
+            extensions.append('.py')
+        elif x == 'Java':
+            extensions.append('.java')
+        elif x == 'JavaScript':
+            extensions.append('.js')
+        elif x == 'C':
+            extensions.append('.c')
+        elif x == 'C++':
+            extensions.append('.cpp')
+        elif x == 'C#':
+            extensions.append('.cs')
+        elif x == 'Ruby':
+            extensions.append('.rb')
+        elif x == 'Swift':
+            extensions.append('.swift')
+        elif x == 'HTML':
+            extensions.append('.html')
+        elif x == 'CSS':
+            extensions.append('.css')
+        elif x == 'PHP':
+            extensions.append('.php')
+
+    return extensions
 
 @app.callback(
     Output('left-output-container', 'children'),
