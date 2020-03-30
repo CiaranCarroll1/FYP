@@ -14,9 +14,9 @@ ACCESS_TOKEN = '821f643807b3d0078f309d35531c7e59d577aa43'
 g = Github(ACCESS_TOKEN)
 
 layout = html.Div([
-    html.H1('Visualizing Change Data in GitHub Repositories', className='header'),
     dbc.Nav(
         [
+            html.H5('ChangeVisualizer', className='header'),
             dbc.NavItem(dbc.NavLink('Home', href='/apps/home')),
             dbc.NavItem(dbc.NavLink('Extractor', active=True, href='/apps/extractor')),
             dbc.NavItem(dbc.NavLink('Visualizer', href='/apps/visualizer')),
@@ -29,31 +29,22 @@ layout = html.Div([
         }
     ),
 
-    html.Button('Help', id='info-button'),
-
-    html.Div([  # modal div
-        html.Div([  # content div
-            html.H4("How Search Results are Ranked"),
-            html.Div(children=[
-                """
+    dbc.Modal(
+        [
+            dbc.ModalHeader("How Search Results are Ranked"),
+            dbc.ModalBody("""
                 Unless another sort option is provided as a query parameter, results are sorted 
                 by best match, as indicated by the score field for each item returned. This is 
                 a computed value representing the relevance of an item relative to the other 
                 items in the result set. 
                 Multiple factors are combined to boost the most relevant item to the top of the 
                 result list.
-                """
-            ]),
-            html.Hr(),
-            html.Button('Close', id='modal-close-button')
+                """),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close", className="ml-auto")
+            ),
         ],
-            style={'textAlign': 'center', },
-            className='modal-content',
-        ),
-    ],
-        id='modal',
-        className='modal',
-        style={"display": "block"},
+        id="modal",
     ),
 
     html.Div(className='container', children=[
@@ -61,10 +52,19 @@ layout = html.Div([
             [
                 dbc.Col(
                     [
-                        html.H4("Search Repositories using Keywords"),
-                        html.H6("(format : 'keyword, keyword etc.')"),
-                        html.Div(dcc.Input(id='left-input-box', type='text')),
-                        html.Button('Submit', id='left-button'),
+                        dbc.FormGroup(
+                            [
+                                html.H4(dbc.Label("Search Repositories using Keywords")),
+                                dbc.Input(placeholder="Enter keywords...", id='left-input-box', type="text"),
+                                dbc.FormText("(format : 'keyword, keyword etc.')"),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(dbc.Button("Submit", color="primary", className="mr-1", id='left-button')),
+                                dbc.Col(dbc.Button("Info", color="secondary", className="mr-1", id='open')),
+                            ]
+                        ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='left-output-container')
                         ], type="default")
@@ -72,10 +72,14 @@ layout = html.Div([
                 ),
                 dbc.Col(
                     [
-                        html.H4("Enter Repository to Extract Data"),
-                        html.H6("(format : 'owner/name')"),
-                        html.Div(dcc.Input(id='right-input-box', type='text')),
-                        html.Button('Submit', id='right-button'),
+                        dbc.FormGroup(
+                            [
+                                html.H4(dbc.Label("Enter Repository to Extract Data")),
+                                dbc.Input(placeholder="Enter repository...", id='right-input-box', type="text"),
+                                dbc.FormText("(format : 'owner/name')"),
+                            ]
+                        ),
+                        dbc.Button("Submit", color="primary", className="mr-1", id='right-button'),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='right-output-container')
                         ], type="default")
@@ -84,8 +88,6 @@ layout = html.Div([
             ]
         ),
     ]),
-
-    html.Div(className='footer', children=[html.A('GitHub', href='https://github.com/CiaranCarroll1/FYP')]),
 ])
 
 def extract_data(value):
@@ -132,6 +134,7 @@ def extract_data(value):
 
     dfr.to_csv('./repos.csv', index=False)
 
+
 def get_extensions(languages):
     extensions = []
     for x in languages:
@@ -159,6 +162,7 @@ def get_extensions(languages):
             extensions.append('.php')
 
     return extensions
+
 
 @app.callback(
     Output('left-output-container', 'children'),
@@ -193,16 +197,12 @@ def update_output(n_clicks, value):
         return "Completed: Visit Visualizer to Examine Data"
 
 
-@app.callback(Output('modal', 'style'),
-              [Input('modal-close-button', 'n_clicks')])
-def close_modal(n_clicks):
-    if n_clicks is None:
-        return {"display": "block"}
-    else:
-        return {"display": "none"}
-
-
-@app.callback(Output('modal-close-button', 'n_clicks'),
-              [Input('info-button', 'n_clicks')])
-def close_modal(n):
-    return None
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("open", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open

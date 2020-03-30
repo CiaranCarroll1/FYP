@@ -20,11 +20,8 @@ h1, h2, h3, h4 {
 }
 
 .header {
-  padding: 20px;
-  text-align: center;
-  background: #1abc9c;
   color: white;
-  margin: 0;
+  margin-right: 50px;
 }
 
 .navbar {
@@ -63,15 +60,6 @@ h1, h2, h3, h4 {
   width: 33%;
 }
 
-.row {
-  margin-top: 0;
-  padding-top: 0;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-}
-
 .col {
   width: 33%;
   text-align: center;
@@ -95,31 +83,4 @@ h1, h2, h3, h4 {
   margin-bottom: 90px;
   background-color: white;
   border: solid;
-}
-
-.footer {
-  padding: 20px;
-  text-align: center;
-  background: #333;
-  flex-shrink: 0;
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-}
-
-.modal {
-    position: fixed;
-    z-index: 1002; /* Sit on top, including modebar which has z=1001 */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
-
-}
-
-.modal-content {
-    padding: 40px;
-    background-color: white;
 }

@@ -4,9 +4,9 @@ import dash_bootstrap_components as dbc
 from app import app
 
 layout = html.Div(className="body", children=[
-    html.H1('Visualizing Change Data in GitHub Repositories', className='header'),
     dbc.Nav(
         [
+            html.H5('ChangeVisualizer', className='header'),
             dbc.NavItem(dbc.NavLink('Home', active=True, href='/apps/home')),
             dbc.NavItem(dbc.NavLink('Extractor', href='/apps/extractor')),
             dbc.NavItem(dbc.NavLink('Visualizer', href='/apps/visualizer')),
@@ -20,7 +20,7 @@ layout = html.Div(className="body", children=[
     ),
 
     html.Div(className="content", children=[
-        html.H2('About'),
+        html.H1('Visualizing Change Data in GitHub Repositories'),
         html.Div([
             html.P('''
                 Many successful software projects endure continuing change as they adapt to new requirements or fix bugs
@@ -42,7 +42,5 @@ layout = html.Div(className="body", children=[
             ''')
         ])
     ]),
-
-    html.Footer(className='footer', children=[html.A('GitHub', href='https://github.com/CiaranCarroll1/FYP')]),
 ])
 
