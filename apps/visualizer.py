@@ -1,4 +1,6 @@
 import json
+from urllib.parse import quote
+
 import pandas as pd
 import dash
 import dash_core_components as dcc
@@ -44,8 +46,28 @@ layout = html.Div([
 
 
     dbc.Row(className='top', children=[
-        dbc.Col(dcc.Graph(id='line_chart', clear_on_unhover=True)),
-        dbc.Col(dcc.Graph(id='file_chart_hover')),
+        dbc.Col(
+            [
+                dcc.Graph(id='line_chart', clear_on_unhover=True),
+                html.A(
+                    'Download Data',
+                    id='download-link',
+                    download="rawdata.csv",
+                    href="",
+                    target="_blank"
+                )
+            ]),
+        dbc.Col(
+            [
+                dcc.Graph(id='file_chart_hover'),
+                html.A(
+                    'Download Data',
+                    id='download-link-2',
+                    download="rawdata.csv",
+                    href="",
+                    target="_blank"
+                )
+            ]),
     ]),
 
     dbc.Row(
@@ -223,3 +245,28 @@ def get_month_data(df, month):
     del filetotals[10:]
 
     return month, filenames, filetotals
+
+
+@app.callback(
+    dash.dependencies.Output('download-link', 'href'),
+    [Input('repository_title', 'value')])
+def update_download_link(repotitle):
+    df = pd.read_csv("./repositories/" + repotitle + ".csv")
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.index = df['Date']
+    df = df.resample('M').sum()
+    csv_string = df.to_csv(index=True, encoding='utf-8')
+    csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
+    return csv_string
+
+
+@app.callback(
+    dash.dependencies.Output('download-link-2', 'href'),
+    [Input('repository_title', 'value')])
+def update_download_link_2(repotitle):
+    df = pd.read_csv("./repositories/" + repotitle + ".csv")
+    df = df.groupby("Filename").sum()
+    df = df.sort_values(by=['Total'], ascending=False)
+    csv_string = df.to_csv(index=True, encoding='utf-8')
+    csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
+    return csv_string
