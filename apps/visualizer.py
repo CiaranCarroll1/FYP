@@ -3,6 +3,7 @@ from urllib.parse import quote
 
 import pandas as pd
 import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -43,6 +44,27 @@ layout = html.Div([
         value=available_repositories[0],
         placeholder='Select a Repository to Visualize...'
     ),
+
+    html.Div(id='table', children=[
+        dbc.Row(
+            [
+                dbc.Col(html.Div("No. of Files:")),
+                dbc.Col(html.Div(id='no_of_files')),
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.Div("Total Line Changes:")),
+                dbc.Col(html.Div(id='total_changes')),
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.Div("% of Change in Top 20% of Files:")),
+                dbc.Col(html.Div(id='percent')),
+            ]
+        ),
+    ]),
 
 
     dbc.Row(className='top', children=[
@@ -146,6 +168,28 @@ def update_dropdown(repotitle):
     return [{'label': i, 'value': i} for i in available_repos]
 
 
+@app.callback([
+    Output('no_of_files', 'children'),
+    Output('total_changes', 'children'),
+    Output('percent', 'children')
+    ],
+    [Input('repository_title', 'value')])
+def update_table(repotitle):
+    df = pd.read_csv("./repositories/" + repotitle + ".csv")
+    df = df.groupby("Filename").sum()
+    df = df.sort_values(by=['Total'], ascending=False)
+
+    nof = df['Total'].count()
+    nof_20 = round(df['Total'].count() * 0.2)
+    total = df['Total'].sum()
+    totals = df['Total'].tolist()
+    del totals[int(nof_20):]
+    change_80 = sum(totals)
+    percent = round((change_80 / total) * 100)
+
+    return nof, total, percent
+
+
 @app.callback(
     Output('line_chart', 'figure'),
     [Input('repository_title', 'value')])
@@ -177,14 +221,20 @@ def update_file_chart_hover(hoverData, repotitle):
         month = hoverData['points'][0]['x']
         df = df.loc[df['Date'] == month]
         month = month[:-3]
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Total'], ascending=False)
+        nof = 10
     else:
         month = "Entire Project"
-    df = df.groupby("Filename").sum()
-    df = df.sort_values(by=['Total'], ascending=False)
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Total'], ascending=False)
+        nof = int(round(df['Total'].count() * 0.2))
+        if nof < 10:
+            nof = 10
     filenames = df.index.tolist()
     filetotals = df['Total'].tolist()
-    del filenames[10:]
-    del filetotals[10:]
+    del filenames[nof:]
+    del filetotals[nof:]
     return createfilechart(filenames, filetotals, month)
 
 
