@@ -86,3 +86,27 @@
 
 # Footer
 # html.Div(className='footer', children=[html.A('GitHub', href='https://github.com/CiaranCarroll1/FYP')]),
+
+
+# @app.callback(
+#     Output('left-output-container', 'children'),
+#     [Input('left-button', 'n_clicks')],
+#     [State('left-input-box', 'value')])
+# def update_output(n_clicks, value):
+#     if n_clicks is None or value is None:
+#         raise dash.exceptions.PreventUpdate
+#     else:
+#         count = 0
+#         keywords = [keyword.strip() for keyword in value.split(',')]
+#         query = '+'.join(keywords) + '+in:readme+in:description'
+#         result = g.search_repositories(query, 'stars', 'desc')
+#         urls = []
+#         for repo in result:
+#             count = count + 1
+#             url = repo.clone_url
+#             url = url.replace('https://github.com/', '')
+#             url = url.replace('.git', '')
+#             urls.append(html.P(url + " - Commits: " + str(repo.get_commits().totalCount)))
+#             if count == 20:
+#                 break
+#         return urls

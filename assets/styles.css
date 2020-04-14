@@ -26,9 +26,11 @@ h1, h2, h3, h4 {
 
 .content {
   text-align: center;
-  flex: 1 0 auto;
-  min-height: 70%;
-  width: 50%;
+}
+
+.about {
+  display: inline-block;
+  width: 50%
 }
 
 .title {
@@ -37,15 +39,13 @@ h1, h2, h3, h4 {
 
 #repository_title {
   padding: 0 5px;
-  width: 33%;
+  width: 80%;
 }
 
 #table {
-  width: 33%;
-  margin-top: 20px;
-  margin-left: 20px;
+  width: 80%;
   background-color: white;
-  border: dotted;
+  border-style: solid;
 }
 
 .col {
@@ -59,7 +59,11 @@ h1, h2, h3, h4 {
   margin-bottom: 60px;
 }
 
-#filechartmonth, #filechartmonth2, #filechartmonth3 {
+/*#filechartmonth, #filechartmonth2, #filechartmonth3 {*/
+/*  padding-bottom: 80px;*/
+/*}*/
+
+#filechartmonth {
   padding-bottom: 80px;
 }
 
@@ -68,7 +72,12 @@ h1, h2, h3, h4 {
 }
 
 #left-output-container, #right-output-container {
-  margin-bottom: 90px;
+  text-align: center;
   background-color: white;
   border: solid;
+}
+
+#datatable, #extract_result {
+  display: inline-block;
+  width: 90%;
 }

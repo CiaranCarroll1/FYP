@@ -3,8 +3,9 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app
-from apps import visualizer, home, extractor
+from pages import home, extractor, visualiser
 
+server = app.server
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -15,10 +16,10 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/apps/extractor':
+    if pathname == '/extractor':
         return extractor.layout
-    elif pathname == '/apps/visualizer':
-        return visualizer.layout
+    elif pathname == '/visualiser':
+        return visualiser.layout
     else:
         return home.layout
 
