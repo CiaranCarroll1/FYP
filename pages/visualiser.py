@@ -352,7 +352,6 @@ def createfilechart(filenames, filetotals, title):
 def get_layout():
     return {
         'layout': {
-            # 'title': 'Shift+Click points on Line Chart to Compare',
             'font': {'color': 'black'},
             'plot_bgcolor': 'rgba(0,0,0,0)',
             'paper_bgcolor': 'rgba(0,0,0,0)',
