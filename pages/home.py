@@ -28,23 +28,17 @@ layout = html.Div(className="body", children=[
             html.H1('Visualizing Change Data in GitHub Repositories'),
             html.Div([
                 html.P('''
-                    Many successful software projects endure continuing change as they adapt to new requirements or fix bugs
-                     in the system. It is useful for software developers to be aware of the 
-                     parts of the system that are most change prone. This can help with cost 
-                     and resource estimations and with guiding code refactoring. 
+                    Many successful software projects endure continuing change as they adapt to new requirements or 
+                    fix bugs in the system. It is useful for software developers to be aware of the parts of the system 
+                    that are most change prone. This can help with cost and resource estimations and with guiding code 
+                    refactoring. 
                 '''),
                 html.P('''
-                    Existing tools provide visualisations of the number of changes at specific intervals of time during 
-                    the project lifecycle and these projects have often quantified change by the number of commits to a 
-                    repository during this time. These tools do not show how the location of these changes, fluctuates 
-                    over time.  
+                    There are numerous existing tools which focus on the visualisation of software change. However, 
+                    these tools do not provide views to explore how the location of these changes, fluctuates over 
+                    time. The aim of this project is to address this gap in software change visualisation by mining 
+                    change data from version control systems (VCS) and creating graphics to display the data.
                 '''),
-                html.P('''
-                    The aim of this project is to address this gap in software change visualisation by mining the data found 
-                    in a version control system and creating visualisations for the files with the greatest change for the 
-                    entire project and specified intervals. For this project, change will be defined by the additions, 
-                    deletions and total change to the files. 
-                ''')
             ])
         ])
     ]),
