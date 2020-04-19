@@ -2,10 +2,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from app import app
+from app import app, server
 from pages import home, extractor, visualiser
 
-server = app.server
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -25,4 +24,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_ui=True)
+    app.run_server(debug=True, dev_tools_ui=False)
