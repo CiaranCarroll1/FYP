@@ -2,19 +2,14 @@
 import pandas as pd
 
 
-# repositories = []
-# repositories.append("Bigkoo_Android_PickerView")
-#
-# datar = {'Name': repositories}
-# dfr = pd.DataFrame(data=datar)
-#
-# dfr.to_hdf('../data/data.h5', key='repos', mode='w')
-#
+df = pd.read_hdf('../data/data.h5', "Bigkoo_Android_PickerView")
+# print(df)
+df['Filename'] = df['Filename'].str.rsplit("/", 1).str[1]
+print(df)
 
-df = pd.read_csv("../data/repositories/Bigkoo_Android_PickerView.csv")
-print(df.dtypes)
-
-
+# string = "/src/hello/world/filename.txt"
+#
+# print(string.rsplit("/", 1))
 
 
 

@@ -34,16 +34,16 @@ h1, h2, h3, h4 {
 }
 
 .title {
-  padding: 0 5px;
+  padding: 0 10px;
 }
 
-#repository_title {
-  padding: 0 5px;
-  width: 80%;
+#repository_title, #abstraction {
+  padding: 0 10px;
+  width: 50%;
 }
 
 #table {
-  width: 80%;
+  width: 50%;
   background-color: white;
   border-style: solid;
 }

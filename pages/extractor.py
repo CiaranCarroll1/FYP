@@ -265,9 +265,9 @@ def extract_data(value):
                 fname = file.filename
                 if fname.endswith(tuple(lang_exts)):
                     dates.append(date)
-                    if '/' in fname:
-                        fsplit = fname.split('/')
-                        fname = fsplit[len(fsplit) - 1]
+                    # if '/' in fname:
+                    #     fsplit = fname.split('/')
+                    #     fname = fsplit[len(fsplit) - 1]
                     filenames.append(fname)
                     totals.append(file.changes)
                     adds.append(file.additions)

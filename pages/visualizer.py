@@ -13,6 +13,7 @@ from app import app
 
 reposdf = pd.read_hdf('./data/data.h5', 'repos')
 available_repositories = reposdf['Name'].unique()
+abstractions = ["File Level", "Package Level"]
 
 styles = {
     'pre': {
@@ -40,7 +41,7 @@ layout = html.Div([
         }
     ),
 
-    html.H4('Select a repository to inspect...', className='title'),
+    html.H4('Select a Repository and Abstraction to Explore', className='title'),
 
     dbc.Row(children=[
         dbc.Col(
@@ -49,15 +50,21 @@ layout = html.Div([
                     id='repository_title',
                     options=[{'label': i, 'value': i} for i in available_repositories],
                     value=available_repositories[0],
-                    placeholder='Select a Repository to Visualize...'
+                    placeholder='Select Repository...'
                 ),
-                html.A(
-                    'Download Data',
-                    id='download-link',
-                    download="rawdata.csv",
-                    href="",
-                    target="_blank"
+                dcc.Dropdown(
+                    id='abstraction',
+                    options=[{'label': i, 'value': i} for i in abstractions],
+                    value=abstractions[0],
+                    placeholder='Select Abstraction...'
                 ),
+                # html.A(
+                #     'Download Data',
+                #     id='download-link',
+                #     download="rawdata.csv",
+                #     href="",
+                #     target="_blank"
+                # ),
             ]),
         dbc.Col(
             [
@@ -147,14 +154,17 @@ def update_table(repotitle):
 @app.callback(
     Output('line_chart', 'figure'),
     [Input('repository_title', 'value'),
+     Input('abstraction', 'value'),
      Input('file_chart_hover', 'hoverData')])
-def update_linechart(repotitle, hoverData):
+def update_linechart(repotitle, abstraction, hoverData):
     if repotitle is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
         if hoverData is not None:
+            if abstraction == "Package Level":
+                df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
             df = df.loc[df['Filename'] == hoverData['points'][0]['x']]
             title = "LOC Changes p/month: " + hoverData['points'][0]['x']
         else:
@@ -181,12 +191,16 @@ def update_linechart(repotitle, hoverData):
 @app.callback(
     Output('file_chart_hover', 'figure'),
     [Input('line_chart', 'hoverData'),
+     Input('abstraction', 'value'),
      Input('repository_title', 'value')])
-def update_file_chart_hover(hoverData, repotitle):
+def update_file_chart_hover(hoverData, abstraction, repotitle):
     if repotitle is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
+
+        if abstraction == "Package Level":
+            df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
 
         if hoverData is not None:
             month = hoverData['points'][0]['x']
@@ -211,12 +225,17 @@ def update_file_chart_hover(hoverData, repotitle):
     Output('filemonth3', 'children')
     ],
     [Input('repository_title', 'value'),
+     Input('abstraction', 'value'),
      Input('line_chart', 'selectedData')])
-def update_file_charts(repotitle, selectedData):
+def update_file_charts(repotitle, abstraction, selectedData):
     if selectedData is None:
         return "", "", ""
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
+
+        if abstraction == "Package Level":
+            df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
+
         points = len(selectedData['points'])
         months = []
 
@@ -238,9 +257,12 @@ def update_file_charts(repotitle, selectedData):
 
 @app.callback(
     dash.dependencies.Output('download-link', 'href'),
-    [Input('repository_title', 'value')])
-def update_download_link(repotitle):
+    [Input('repository_title', 'value'),
+     Input('abstraction', 'value')])
+def update_download_link(repotitle, abstraction):
     df = pd.read_hdf('./data/data.h5', repotitle)
+    if abstraction == "Package Level":
+        df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
     csv_string = df.to_csv(index=True, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
     return csv_string
@@ -295,7 +317,7 @@ def createfilecharthover(filenames, filetotals, title):
             },
         ],
         'layout': {
-            'title': 'Greatest Change (File level): ' + title,
+            'title': 'Greatest Change: ' + title,
             'paper_bgcolor': 'rgba(0,0,0,0)',
             'plot_bgcolor': 'rgba(0,0,0,0)',
             'font': {'color': 'black'},
@@ -320,7 +342,7 @@ def createfilechart(data):
                     },
                 ],
                 'layout': {
-                    'title': 'Greatest Change (File level): ' + data[2],
+                    'title': 'Greatest Change: ' + data[2],
                     'paper_bgcolor': 'rgba(0,0,0,0)',
                     'plot_bgcolor': 'rgba(0,0,0,0)',
                     'font': {'color': 'black'},
