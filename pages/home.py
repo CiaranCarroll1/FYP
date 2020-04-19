@@ -10,10 +10,10 @@ from app import app
 layout = html.Div(className="body", children=[
     dbc.Nav(
         [
-            html.H5('ChangeVisualiser', className='header'),
+            html.H5('ChangeVisualizer', className='header'),
             dbc.NavItem(dbc.NavLink('Home', active=True, href='/home')),
             dbc.NavItem(dbc.NavLink('Extractor', href='/extractor')),
-            dbc.NavItem(dbc.NavLink('Visualiser', href='/visualiser')),
+            dbc.NavItem(dbc.NavLink('Visualizer', href='/visualizer')),
         ],
         pills=True,
         style={

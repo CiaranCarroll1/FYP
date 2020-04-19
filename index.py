@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app, server
-from pages import home, extractor, visualiser
+from pages import home, extractor, visualizer
 
 
 app.layout = html.Div([
@@ -17,8 +17,8 @@ app.layout = html.Div([
 def display_page(pathname):
     if pathname == '/extractor':
         return extractor.layout
-    elif pathname == '/visualiser':
-        return visualiser.layout
+    elif pathname == '/visualizer':
+        return visualizer.layout
     else:
         return home.layout
 
