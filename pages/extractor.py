@@ -3,9 +3,9 @@ import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import dash_table as dt
+from dash.dependencies import Input, Output, State
 
 from app import app
 
@@ -211,17 +211,43 @@ def get_extensions(languages):
         elif x == 'PHP':
             extensions.append('.php')
 
+        elif x == 'Shell':
+            extensions.append('.sh')
+        elif x == 'Go':
+            extensions.append('.go')
+        elif x == 'TypeScript':
+            extensions.append('.ts')
+        elif x == 'Jupyter Notebook':
+            extensions.append('.ipynb')
+        elif x == 'Objective-C':
+            extensions.append('.m')
+        elif x == 'Kotlin':
+            extensions.append('.kt')
+
+        elif x == 'R':
+            extensions.append('.r')
+        elif x == 'Scala':
+            extensions.append('.s')
+        elif x == 'Rust':
+            extensions.append('.ru')
+        elif x == 'Lua':
+            extensions.append('.lua')
+        elif x == 'Matlab':
+            extensions.append('.mt')
+
     return extensions
 
 
 def extract_data(value):
-    reposdf = pd.read_csv("./repos.csv")
+    reposdf = pd.read_hdf('./data/data.h5', 'repos')
+
     repositories = reposdf['Name'].tolist()
     try:
         repo = g.get_repo(value)
         languages = repo.get_languages()
         lang_exts = get_extensions(languages)
         value = value.replace("/", "_")
+        value = value.replace("-", "_")
         dates = []
         filenames = []
         totals = []
@@ -250,7 +276,7 @@ def extract_data(value):
         data = {'Date': dates, 'Filename': filenames, 'Total': totals, 'Additions': adds, 'Deletions': dels}
         df = pd.DataFrame(data=data)
 
-        df.to_csv('./repositories/' + value + '.csv', index=False)
+        df.to_hdf('./data/data.h5', key=value)
 
         if value not in repositories:
             repositories.append(value)
@@ -258,7 +284,7 @@ def extract_data(value):
         datar = {'Name': repositories}
         dfr = pd.DataFrame(data=datar)
 
-        dfr.to_csv('./repos.csv', index=False)
+        dfr.to_hdf('./data/data.h5', key='repos')
         return "Completed: Visit Visualizer to Examine Data"
 
     except:

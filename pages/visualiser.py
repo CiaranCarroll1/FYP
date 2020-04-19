@@ -1,16 +1,17 @@
 from urllib.parse import quote
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output
 
 from app import app
 
-reposdf = pd.read_csv("./repos.csv")
+reposdf = pd.read_hdf('./data/data.h5', 'repos')
 available_repositories = reposdf['Name'].unique()
 
 styles = {
@@ -50,6 +51,13 @@ layout = html.Div([
                     value=available_repositories[0],
                     placeholder='Select a Repository to Visualize...'
                 ),
+                html.A(
+                    'Download Data',
+                    id='download-link',
+                    download="rawdata.csv",
+                    href="",
+                    target="_blank"
+                ),
             ]),
         dbc.Col(
             [
@@ -82,24 +90,10 @@ layout = html.Div([
         dbc.Col(
             [
                 dcc.Graph(id='line_chart', clear_on_unhover=True),
-                html.A(
-                    'Download Data',
-                    id='download-link',
-                    download="rawdata.csv",
-                    href="",
-                    target="_blank"
-                ),
             ]),
         dbc.Col(
             [
                 dcc.Graph(id='file_chart_hover', clear_on_unhover=True),
-                html.A(
-                    'Download Data',
-                    id='download-link-2',
-                    download="rawdata.csv",
-                    href="",
-                    target="_blank"
-                )
             ]),
     ]),
 
@@ -120,7 +114,7 @@ layout = html.Div([
     Output('repository_title', 'options'),
     [Input('repository_title', 'value')])
 def update_dropdown(repotitle):
-    repos = pd.read_csv("./repos.csv")
+    repos = pd.read_hdf('./data/data.h5', 'repos')
     available_repos = repos['Name'].unique()
     return [{'label': i, 'value': i} for i in available_repos]
 
@@ -132,19 +126,22 @@ def update_dropdown(repotitle):
     ],
     [Input('repository_title', 'value')])
 def update_table(repotitle):
-    df = pd.read_csv("./repositories/" + repotitle + ".csv")
-    df = df.groupby("Filename").sum()
-    df = df.sort_values(by=['Total'], ascending=False)
+    if repotitle is None:
+        raise dash.exceptions.PreventUpdate
+    else:
+        df = pd.read_hdf('./data/data.h5', repotitle)
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Total'], ascending=False)
 
-    nof = df['Total'].count()
-    nof_20 = round(df['Total'].count() * 0.2)
-    total = df['Total'].sum()
-    totals = df['Total'].tolist()
-    del totals[int(nof_20):]
-    change_80 = sum(totals)
-    percent = round((change_80 / total) * 100)
+        nof = df['Total'].count()
+        nof_20 = round(df['Total'].count() * 0.2)
+        total = df['Total'].sum()
+        totals = df['Total'].tolist()
+        del totals[int(nof_20):]
+        change_80 = sum(totals)
+        percent = round((change_80 / total) * 100)
 
-    return nof, total, percent
+        return nof, total, percent
 
 
 @app.callback(
@@ -152,31 +149,33 @@ def update_table(repotitle):
     [Input('repository_title', 'value'),
      Input('file_chart_hover', 'hoverData')])
 def update_linechart(repotitle, hoverData):
-    df = pd.read_csv("./repositories/" + repotitle + ".csv")
-
-    if hoverData is not None:
-        df = df.loc[df['Filename'] == hoverData['points'][0]['x']]
-        title = "LOC Changes p/month: " + hoverData['points'][0]['x']
+    if repotitle is None:
+        raise dash.exceptions.PreventUpdate
     else:
-        title = "LOC Changes p/month [Shift+Click points to Compare Below]"
+        df = pd.read_hdf('./data/data.h5', repotitle)
 
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.index = df['Date']
-    df = df.resample('M').sum()
-    columns = ['Total']
-    df = df.replace(0, np.nan).dropna(axis=0, how='any', subset=columns).fillna(0).astype(int)
-    timestamps = df.index.tolist()
-    dates = []
-    for timestamp in timestamps:
-        date = timestamp.to_pydatetime()
-        date = date.replace(day=1)
-        dates.append(date)
+        if hoverData is not None:
+            df = df.loc[df['Filename'] == hoverData['points'][0]['x']]
+            title = "LOC Changes p/month: " + hoverData['points'][0]['x']
+        else:
+            title = "LOC Changes p/month [Shift+Click points to Compare Below]"
 
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.index = df['Date']
+        df = df.resample('M').sum()
+        columns = ['Total']
+        df = df.replace(0, np.nan).dropna(axis=0, how='any', subset=columns).fillna(0).astype(int)
+        timestamps = df.index.tolist()
+        dates = []
+        for timestamp in timestamps:
+            date = timestamp.to_pydatetime()
+            date = date.replace(day=1)
+            dates.append(date)
 
-    totals = df['Total'].tolist()
-    adds = df['Additions'].tolist()
-    dels = df['Deletions'].tolist()
-    return createlinechart(dates, totals, adds, dels, title)
+        totals = df['Total'].tolist()
+        adds = df['Additions'].tolist()
+        dels = df['Deletions'].tolist()
+        return createlinechart(dates, totals, adds, dels, title)
 
 
 @app.callback(
@@ -184,21 +183,26 @@ def update_linechart(repotitle, hoverData):
     [Input('line_chart', 'hoverData'),
      Input('repository_title', 'value')])
 def update_file_chart_hover(hoverData, repotitle):
-    df = pd.read_csv("./repositories/" + repotitle + ".csv")
-    if hoverData is not None:
-        month = hoverData['points'][0]['x']
-        df = df.loc[df['Date'] == month]
-        month = month[:-3]
+    if repotitle is None:
+        raise dash.exceptions.PreventUpdate
     else:
-        month = "Full Lifecycle"
+        df = pd.read_hdf('./data/data.h5', repotitle)
 
-    df = df.groupby("Filename").sum()
-    df = df.sort_values(by=['Filename'], ascending=True)
+        if hoverData is not None:
+            month = hoverData['points'][0]['x']
+            df['Date'] = df.Date.astype(str)
+            df = df.loc[df['Date'] == month]
+            month = month[:-3]
+        else:
+            month = "Full Lifecycle"
 
-    filenames = df.index.tolist()
-    filetotals = df['Total'].tolist()
+        df = df.groupby("Filename").sum()
+        df = df.sort_values(by=['Filename'], ascending=True)
 
-    return createfilecharthover(filenames, filetotals, month)
+        filenames = df.index.tolist()
+        filetotals = df['Total'].tolist()
+
+        return createfilecharthover(filenames, filetotals, month)
 
 
 @app.callback([
@@ -212,51 +216,31 @@ def update_file_charts(repotitle, selectedData):
     if selectedData is None:
         return "", "", ""
     else:
-        df = pd.read_csv("./repositories/" + repotitle + ".csv")
-        month1 = selectedData['points'][0]['x']
-        month1, filenames1, filetotals1 = get_month_data(df, month1)
+        df = pd.read_hdf('./data/data.h5', repotitle)
         points = len(selectedData['points'])
+        months = []
 
-        if points >= 2:
-            month2 = selectedData['points'][1]['x']
-            month2, filenames2, filetotals2 = get_month_data(df, month2)
-
-        if points >= 3:
-            month3 = selectedData['points'][2]['x']
-            month3, filenames3, filetotals3 = get_month_data(df, month3)
+        for x in range(points):
+            month = selectedData['points'][x]['x']
+            months.append(get_month_data(df, month))
 
         if points >= 3:
-            return createfilechart(filenames1, filetotals1, month1), \
-                   createfilechart(filenames2, filetotals2, month2), \
-                   createfilechart(filenames3, filetotals3, month3)
+            return createfilechart(months[0]), \
+                   createfilechart(months[1]), \
+                   createfilechart(months[2])
         elif points == 2:
-            return createfilechart(filenames1, filetotals1, month1), \
-                   createfilechart(filenames2, filetotals2, month2), \
+            return createfilechart(months[0]), \
+                   createfilechart(months[1]), \
                    ""
         elif points == 1:
-            return createfilechart(filenames1, filetotals1, month1), "", ""
+            return createfilechart(months[0]), "", ""
 
 
 @app.callback(
     dash.dependencies.Output('download-link', 'href'),
     [Input('repository_title', 'value')])
 def update_download_link(repotitle):
-    df = pd.read_csv("./repositories/" + repotitle + ".csv")
-    df['Date'] = pd.to_datetime(df['Date'])
-    df.index = df['Date']
-    df = df.resample('M').sum()
-    csv_string = df.to_csv(index=True, encoding='utf-8')
-    csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
-    return csv_string
-
-
-@app.callback(
-    dash.dependencies.Output('download-link-2', 'href'),
-    [Input('repository_title', 'value')])
-def update_download_link_2(repotitle):
-    df = pd.read_csv("./repositories/" + repotitle + ".csv")
-    df = df.groupby("Filename").sum()
-    df = df.sort_values(by=['Total'], ascending=False)
+    df = pd.read_hdf('./data/data.h5', repotitle)
     csv_string = df.to_csv(index=True, encoding='utf-8')
     csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
     return csv_string
@@ -322,21 +306,21 @@ def createfilecharthover(filenames, filetotals, title):
     }
 
 
-def createfilechart(filenames, filetotals, title):
+def createfilechart(data):
     return [
         dcc.Graph(
             id='filechartmonth',
             figure={
                 'data': [
                     {
-                        'x': filenames,
-                        'y': filetotals,
+                        'x': data[0],
+                        'y': data[1],
                         'type': 'bar',
                         'name': 'Total',
                     },
                 ],
                 'layout': {
-                    'title': 'Greatest Change (File level): ' + title,
+                    'title': 'Greatest Change (File level): ' + data[2],
                     'paper_bgcolor': 'rgba(0,0,0,0)',
                     'plot_bgcolor': 'rgba(0,0,0,0)',
                     'font': {'color': 'black'},
@@ -360,6 +344,7 @@ def get_layout():
 
 
 def get_month_data(df, month):
+    df['Date'] = df.Date.astype(str)
     df = df.loc[df['Date'] == month]
     month = month[:-3]
     df = df.groupby("Filename").sum()
@@ -369,4 +354,4 @@ def get_month_data(df, month):
     del filenames[10:]
     del filetotals[10:]
 
-    return month, filenames, filetotals
+    return filenames, filetotals, month
