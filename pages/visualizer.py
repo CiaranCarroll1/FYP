@@ -1,5 +1,4 @@
 from urllib.parse import quote
-from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -41,54 +40,32 @@ layout = html.Div([
         }
     ),
 
-    html.H4('Select a Repository and Abstraction to Explore', className='title'),
+    # html.H4('Select a Repository and Abstraction to Explore', className='title'),
 
-    dbc.Row(children=[
-        dbc.Col(
-            [
-                dcc.Dropdown(
-                    id='repository_title',
-                    options=[{'label': i, 'value': i} for i in available_repositories],
-                    value=available_repositories[0],
-                    placeholder='Select Repository...'
-                ),
-                dcc.Dropdown(
-                    id='abstraction',
-                    options=[{'label': i, 'value': i} for i in abstractions],
-                    value=abstractions[0],
-                    placeholder='Select Abstraction...'
-                ),
-                # html.A(
-                #     'Download Data',
-                #     id='download-link',
-                #     download="rawdata.csv",
-                #     href="",
-                #     target="_blank"
-                # ),
-            ]),
-        dbc.Col(
-            [
-                html.Div(id='table', children=[
-                    dbc.Row(
-                        [
-                            dbc.Col(html.Div("Files:")),
-                            dbc.Col(html.Div(id='no_of_files')),
-                        ]
-                    ),
-                    dbc.Row(
-                        [
-                            dbc.Col(html.Div("Total Change (LOC):")),
-                            dbc.Col(html.Div(id='total_changes')),
-                        ]
-                    ),
-                    dbc.Row(
-                        [
-                            dbc.Col(html.Div("Change(%) in Top 20% of Files:")),
-                            dbc.Col(html.Div(id='percent')),
-                        ]
-                    ),
-                ]),
-            ]),
+    html.Div(id='repos-choice', children=[
+        html.Div(id='dropdowns', children=[
+            html.H4('Select a Repository and Abstraction to Explore', className='title'),
+            dcc.Dropdown(
+                id='repository_title',
+                options=[{'label': i, 'value': i} for i in available_repositories],
+                value=available_repositories[0],
+                placeholder='Select Repository...'
+            ),
+            dcc.Dropdown(
+                id='abstraction',
+                options=[{'label': i, 'value': i} for i in abstractions],
+                value=abstractions[0],
+                placeholder='Select Abstraction...'
+            ),
+            html.A(
+                'Download Data',
+                id='download-link',
+                download="rawdata.csv",
+                href="",
+                target="_blank"
+            ),
+        ]),
+        html.Div(id='table'),
     ]),
 
     html.Div(id='paretos-value', style={'display': 'none'}),
@@ -126,29 +103,37 @@ def update_dropdown(repotitle):
     return [{'label': i, 'value': i} for i in available_repos]
 
 
-@app.callback([
-    Output('no_of_files', 'children'),
-    Output('total_changes', 'children'),
-    Output('percent', 'children')
-    ],
+@app.callback(
+    Output('table', 'children'),
     [Input('repository_title', 'value')])
 def update_table(repotitle):
     if repotitle is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
+
+        df_f = df.groupby("Filename").sum()
+        files = df_f['Total'].count()
+        change = df_f['Total'].sum()
+
+        df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
         df = df.groupby("Filename").sum()
-        df = df.sort_values(by=['Total'], ascending=False)
+        packages = df['Total'].count()
 
-        nof = df['Total'].count()
-        nof_20 = round(df['Total'].count() * 0.2)
-        total = df['Total'].sum()
-        totals = df['Total'].tolist()
-        del totals[int(nof_20):]
-        change_80 = sum(totals)
-        percent = round((change_80 / total) * 100)
+        stats = ["Packages", "Files", "Change (LOC)"]
+        counts = [packages, files, change]
 
-        return nof, total, percent
+        # nof_20 = round(df['Total'].count() * 0.2)
+        # df_f = df.sort_values(by=['Total'], ascending=False)
+        # totals = df['Total'].tolist()
+        # del totals[int(nof_20):]
+        # change_80 = sum(totals)
+        # percent = round((change_80 / total) * 100)
+
+        data = {'-': stats, 'Count': counts}
+        df = pd.DataFrame(data=data)
+
+        return dbc.Table.from_dataframe(df, bordered=True, hover=True, size='sm')
 
 
 @app.callback(

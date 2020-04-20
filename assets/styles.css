@@ -1,18 +1,7 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
   font-family: sans-serif;
   margin: 0;
   background-color: lightgrey;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: black;
 }
 
 h1, h2, h3, h4 {
@@ -33,19 +22,17 @@ h1, h2, h3, h4 {
   width: 50%
 }
 
-.title {
-  padding: 0 10px;
+#repos-choice {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
 }
 
-#repository_title, #abstraction {
-  padding: 0 10px;
-  width: 50%;
-}
-
-#table {
-  width: 50%;
-  background-color: white;
-  border-style: solid;
+#dropdowns, #table {
+  text-align:center;
+  margin-left: 50px;
 }
 
 .col {
@@ -70,5 +57,4 @@ h1, h2, h3, h4 {
 
 #datatable, #extract_result {
   display: inline-block;
-  width: 90%;
 }

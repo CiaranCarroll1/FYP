@@ -4,7 +4,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import dash_table as dt
+
 from dash.dependencies import Input, Output, State
 
 from app import app
@@ -129,7 +129,7 @@ def update_output(n_clicks, value):
         data = {'Owner/Name': repos, 'Commits': commits}
         df = pd.DataFrame(data=data)
 
-        return create_datatable(df)
+        return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
 
 
 @app.callback(
@@ -156,33 +156,6 @@ def toggle_modal(n1, n2, is_open):
 
 
 """ [functions] """
-
-
-def create_datatable(df):
-    return [
-        dt.DataTable(
-            id='datatable',
-            columns=[{"name": i, "id": i} for i in df.columns],
-            data=df.to_dict("rows"),
-            style_header={'fontWeight': 'bold'},
-            style_cell={
-                'textAlign': 'left',
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis',
-                'maxWidth': 0,
-            },
-            style_cell_conditional=[
-                {'if': {'column_id': 'Owner/Name'},
-                 'width': '70%'},
-                {'if': {'column_id': 'Commits'},
-                 'width': '30%'},
-            ],
-            style_as_list_view=True,
-            page_action='native',
-            page_current=0,
-            page_size=14,
-        )
-    ]
 
 
 def get_extensions(languages):
