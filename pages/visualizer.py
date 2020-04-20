@@ -133,7 +133,7 @@ def update_table(repotitle):
         data = {'-': stats, 'Count': counts}
         df = pd.DataFrame(data=data)
 
-        return dbc.Table.from_dataframe(df, bordered=True, hover=True, size='sm')
+        return dbc.Table.from_dataframe(df, bordered=True, hover=True, size='sm', style={'border': 'solid'})
 
 
 @app.callback(
