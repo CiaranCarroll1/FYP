@@ -1,4 +1,4 @@
-from github import Github
+from github import Github, GithubException
 import pandas as pd
 import dash
 import dash_core_components as dcc
@@ -36,12 +36,9 @@ layout = html.Div([
         [
             dbc.ModalHeader("How Search Results are Ranked"),
             dbc.ModalBody("""
-                Unless another sort option is provided as a query parameter, results are sorted 
-                by best match, as indicated by the score field for each item returned. This is 
-                a computed value representing the relevance of an item relative to the other 
-                items in the result set. 
-                Multiple factors are combined to boost the most relevant item to the top of the 
-                result list.
+                Results are sorted by best match, as indicated by the score field for each item returned. This is 
+                a computed value representing the relevance of an item relative to the other items in the result set. 
+                Multiple factors are combined to boost the most relevant item to the top of the result list.
                 """),
             dbc.ModalFooter(
                 dbc.Button("Close", id="close", className="ml-auto")
@@ -70,6 +67,10 @@ layout = html.Div([
                         ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='left-output-container', children=[
+                                html.Div(id='search_api'),
+                                html.Div(id='core_api'),
+                                html.Br(),
+                                html.Div(id='repos-found'),
                                 html.Div(id='datatable')
                             ])
                         ], type="default")
@@ -87,6 +88,8 @@ layout = html.Div([
                         dbc.Button("Submit", color="primary", className="mr-1", id='right-button'),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='right-output-container', children=[
+                                html.Div(id='rate_limit'),
+                                html.Br(),
                                 html.Div(id='extract_result')
                             ])
                         ], type="default")
@@ -101,22 +104,24 @@ layout = html.Div([
 """ [Callbacks] """
 
 
-@app.callback(
-    Output('datatable', 'children'),
+@app.callback([
+    Output('search_api', 'children'),
+    Output('core_api', 'children'),
+    Output('repos-found', 'children'),
+    Output('datatable', 'children')
+    ],
     [Input('left-button', 'n_clicks')],
     [State('left-input-box', 'value')])
 def update_output(n_clicks, value):
     if n_clicks is None or value is None:
         raise dash.exceptions.PreventUpdate
     else:
-        count = 0
         keywords = [keyword.strip() for keyword in value.split(',')]
-        query = '+'.join(keywords) + '+in:readme+in:description'
-        result = g.search_repositories(query, 'stars', 'desc')
+        query = '+'.join(keywords) + '+in:name+in:readme+in:description'
+        result = g.search_repositories(query)
         repos = []
         commits = []
         for repo in result:
-            count = count + 1
             url = repo.clone_url
             url = url.replace('https://github.com/', '')
             url = url.replace('.git', '')
@@ -129,7 +134,19 @@ def update_output(n_clicks, value):
         data = {'Owner/Name': repos, 'Commits': commits}
         df = pd.DataFrame(data=data)
 
-        return dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+        try:
+            totalCount = result.totalCount
+        except GithubException:
+            totalCount = 0
+
+        rate_limit = g.get_rate_limit()
+        rate = rate_limit.search
+        ratec = rate_limit.core
+
+        return f'You have {rate.remaining}/{rate.limit} Search API calls remaining. Reset time: {rate.reset}', \
+               f'You have {ratec.remaining}/{ratec.limit} Core API calls remaining. Reset time: {ratec.reset}', \
+               f'Found {totalCount} repo(s)\n', \
+               dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
 
 
 @app.callback(
@@ -258,7 +275,13 @@ def extract_data(value):
         dfr = pd.DataFrame(data=datar)
 
         dfr.to_hdf('./data/data.h5', key='repos')
-        return "Completed: Visit Visualizer to Examine Data"
 
-    except:
-        return "Invalid Repository Details"
+        rate_limit = g.get_rate_limit()
+        rate = rate_limit.core
+
+        return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
+               'Completed: Visit Visualizer to Examine Data.'
+
+    except GithubException as e:
+        return f'Status: {e.status} - Data: {e.data}'
+

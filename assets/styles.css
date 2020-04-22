@@ -22,17 +22,19 @@ h1, h2, h3, h4 {
   width: 50%
 }
 
-#repos-choice {
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+#search_api, #core_api, #rate_limit {
+  font-size: small;
 }
 
-#dropdowns, #table {
+#repos-choice {
+  white-space: nowrap
+}
+
+#dropdowns, #table, #pareto_percents {
+  vertical-align: top;
   text-align:center;
   margin-left: 50px;
+  display: inline-block;
 }
 
 .col {

@@ -40,8 +40,6 @@ layout = html.Div([
         }
     ),
 
-    # html.H4('Select a Repository and Abstraction to Explore', className='title'),
-
     html.Div(id='repos-choice', children=[
         html.Div(id='dropdowns', children=[
             html.H4('Select a Repository and Abstraction to Explore', className='title'),
@@ -66,28 +64,19 @@ layout = html.Div([
             ),
         ]),
         html.Div(id='table'),
+        html.Div(id='pareto_percents'),
     ]),
 
-    html.Div(id='paretos-value', style={'display': 'none'}),
-
-    dbc.Row(className='top', children=[
-        dbc.Col(
-            [
-                dcc.Graph(id='line_chart', clear_on_unhover=True),
-            ]),
-        dbc.Col(
-            [
-                dcc.Graph(id='file_chart_hover', clear_on_unhover=True),
-            ]),
+    dbc.Row([
+        dbc.Col(dcc.Graph(id='line_chart', clear_on_unhover=True)),
+        dbc.Col(dcc.Graph(id='file_chart_hover', clear_on_unhover=True))
     ]),
 
-    dbc.Row(
-        [
-            dbc.Col(html.Div(id='filemonth1')),
-            dbc.Col(html.Div(id='filemonth2')),
-            dbc.Col(html.Div(id='filemonth3')),
-        ]
-    ),
+    dbc.Row([
+        dbc.Col(html.Div(id='filemonth1')),
+        dbc.Col(html.Div(id='filemonth2')),
+        dbc.Col(html.Div(id='filemonth3')),
+    ]),
 ])
 
 
@@ -103,8 +92,10 @@ def update_dropdown(repotitle):
     return [{'label': i, 'value': i} for i in available_repos]
 
 
-@app.callback(
+@app.callback([
     Output('table', 'children'),
+    Output('pareto_percents', 'children'),
+],
     [Input('repository_title', 'value')])
 def update_table(repotitle):
     if repotitle is None:
@@ -113,27 +104,38 @@ def update_table(repotitle):
         df = pd.read_hdf('./data/data.h5', repotitle)
 
         df_f = df.groupby("Filename").sum()
-        files = df_f['Total'].count()
+        df_f = df_f.sort_values(by=['Total'], ascending=False)
+        file_count = df_f['Total'].count()
         change = df_f['Total'].sum()
 
         df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
-        df = df.groupby("Filename").sum()
-        packages = df['Total'].count()
+        df_p = df.groupby("Filename").sum()
+        df_p = df_p.sort_values(by=['Total'], ascending=False)
+        package_count = df_p['Total'].count()
 
-        stats = ["Packages", "Files", "Change (LOC)"]
-        counts = [packages, files, change]
+        stats_1 = ["Packages", "Files", "Change (LOC)"]
+        counts_1 = [package_count, file_count, change]
+        data_1 = {'': stats_1, 'Count': counts_1}
+        df_1 = pd.DataFrame(data=data_1)
 
-        # nof_20 = round(df['Total'].count() * 0.2)
-        # df_f = df.sort_values(by=['Total'], ascending=False)
-        # totals = df['Total'].tolist()
-        # del totals[int(nof_20):]
-        # change_80 = sum(totals)
-        # percent = round((change_80 / total) * 100)
+        _20p_files = round(file_count * 0.2)
+        _20p_packages = round(package_count * 0.2)
+        file_totals = df_f['Total'].tolist()
+        package_totals = df_p['Total'].tolist()
+        del file_totals[int(_20p_files):]
+        del package_totals[int(_20p_packages):]
+        change_20p_files = sum(file_totals)
+        change_20p_packages = sum(file_totals)
+        file_percent = round((change_20p_files / change) * 100)
+        package_percent = round((change_20p_packages / change) * 100)
 
-        data = {'-': stats, 'Count': counts}
-        df = pd.DataFrame(data=data)
+        stats_2 = ["% Change (LOC) in 20% Files", "% Change (LOC) in 20% Packages"]
+        percents_2 = [file_percent, package_percent]
+        data_2 = {'Pareto Principle': stats_2, 'Percent': percents_2}
+        df_2 = pd.DataFrame(data=data_2)
 
-        return dbc.Table.from_dataframe(df, bordered=True, hover=True, size='sm', style={'border': 'solid'})
+        return dbc.Table.from_dataframe(df_1, bordered=True, hover=True, size='sm', style={'border': 'solid'}), \
+               dbc.Table.from_dataframe(df_2, bordered=True, hover=True, size='sm', style={'border': 'solid'})
 
 
 @app.callback(
@@ -151,9 +153,9 @@ def update_linechart(repotitle, abstraction, hoverData):
             if abstraction == "Package Level":
                 df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
             df = df.loc[df['Filename'] == hoverData['points'][0]['x']]
-            title = "LOC Changes p/month: " + hoverData['points'][0]['x']
+            title = "LOC Change p/month: " + hoverData['points'][0]['x']
         else:
-            title = "LOC Changes p/month [Shift+Click points to Compare Below]"
+            title = "LOC Change p/month [Shift+Click points to Compare Below]"
 
         df['Date'] = pd.to_datetime(df['Date'])
         df.index = df['Date']
@@ -302,7 +304,7 @@ def createfilecharthover(filenames, filetotals, title):
             },
         ],
         'layout': {
-            'title': 'Greatest Change: ' + title,
+            'title': 'LOC Change p/file: ' + title,
             'paper_bgcolor': 'rgba(0,0,0,0)',
             'plot_bgcolor': 'rgba(0,0,0,0)',
             'font': {'color': 'black'},
