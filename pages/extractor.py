@@ -119,6 +119,7 @@ def update_output(n_clicks, value):
         keywords = [keyword.strip() for keyword in value.split(',')]
         query = '+'.join(keywords) + '+in:name+in:readme+in:description'
         result = g.search_repositories(query)
+        del result[50:]
         repos = []
         commits = []
         for repo in result:
