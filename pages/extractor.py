@@ -298,5 +298,5 @@ def extract_data(value):
                'Completed: Visit Visualizer to Examine Data.'
 
     except GithubException as e:
-        return f'Status: {e.status} - Data: {e.data}'
+        return f'Status: {e.status} - Data: {e.data}', "Error: Invalid Input Details"
 
