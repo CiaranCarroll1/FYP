@@ -59,8 +59,9 @@ layout = html.Div([
                 value=abstractions[0],
                 placeholder='Select Abstraction...'
             ),
+            html.Br(),
             html.A(
-                'Download Data',
+                'Download Data as CSV',
                 id='download-link',
                 download="rawdata.csv",
                 href="",
