@@ -132,7 +132,7 @@ def update_table(repotitle):
         change_20p_files = sum(file_totals)
         file_percent = round((change_20p_files / change) * 100)
 
-        stats_2 = ["% Change (LOC) in 20% Files"]
+        stats_2 = ["80% Change (LOC) in 20% Files?"]
         percents_2 = [file_percent]
         data_2 = {'Pareto Principle': stats_2, 'Percent': percents_2}
         df_2 = pd.DataFrame(data=data_2)
