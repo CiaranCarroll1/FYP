@@ -1,3 +1,5 @@
+import os.path as osp
+
 from github import Github, GithubException
 import pandas as pd
 import dash
@@ -119,18 +121,24 @@ def update_output(n_clicks, value):
         keywords = [keyword.strip() for keyword in value.split(',')]
         query = '+'.join(keywords) + '+in:name+in:readme+in:description'
         result = g.search_repositories(query)
-        del result[50:]
         repos = []
         commits = []
+
+        count = 0
         for repo in result:
             url = repo.clone_url
             url = url.replace('https://github.com/', '')
             url = url.replace('.git', '')
             repos.append(url)
+
             try:
                 commits.append(repo.get_commits().totalCount)
-            except:
+            except GithubException:
                 commits.append(0)
+
+            count += 1
+            if count == 50:
+                break
 
         data = {'Owner/Name': repos, 'Commits': commits}
         df = pd.DataFrame(data=data)
@@ -144,22 +152,29 @@ def update_output(n_clicks, value):
         rate = rate_limit.search
         ratec = rate_limit.core
 
+        if totalCount > 50:
+            found = f'Found {totalCount} repo(s) - Displaying Top 50'
+        else:
+            found = f'Found {totalCount} repo(s)'
+
         return f'You have {rate.remaining}/{rate.limit} Search API calls remaining. Reset time: {rate.reset}', \
                f'You have {ratec.remaining}/{ratec.limit} Core API calls remaining. Reset time: {ratec.reset}', \
-               f'Found {totalCount} repo(s)\n', \
+               found, \
                dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
 
 
-@app.callback(
-    Output('extract_result', 'children'),
+@app.callback([
+    Output('rate_limit', 'children'),
+    Output('extract_result', 'children')
+    ],
     [Input('right-button', 'n_clicks')],
     [State('right-input-box', 'value')])
 def update_output(n_clicks, value):
     if n_clicks is None or value is None:
         raise dash.exceptions.PreventUpdate
     else:
-        result = extract_data(value)
-        return result
+        rl, result = extract_data(value)
+        return rl, result
 
 
 @app.callback(
@@ -187,8 +202,10 @@ def get_extensions(languages):
             extensions.append('.js')
         elif x == 'C':
             extensions.append('.c')
+            extensions.append('.h')
         elif x == 'C++':
             extensions.append('.cpp')
+            extensions.append('.h')
         elif x == 'C#':
             extensions.append('.cs')
         elif x == 'Ruby':
@@ -201,38 +218,38 @@ def get_extensions(languages):
             extensions.append('.css')
         elif x == 'PHP':
             extensions.append('.php')
-
         elif x == 'Shell':
             extensions.append('.sh')
         elif x == 'Go':
             extensions.append('.go')
         elif x == 'TypeScript':
             extensions.append('.ts')
-        elif x == 'Jupyter Notebook':
-            extensions.append('.ipynb')
         elif x == 'Objective-C':
+            extensions.append('.h')
             extensions.append('.m')
         elif x == 'Kotlin':
             extensions.append('.kt')
-
         elif x == 'R':
             extensions.append('.r')
         elif x == 'Scala':
-            extensions.append('.s')
+            extensions.append('.scala')
         elif x == 'Rust':
-            extensions.append('.ru')
+            extensions.append('.rs')
         elif x == 'Lua':
             extensions.append('.lua')
         elif x == 'Matlab':
-            extensions.append('.mt')
+            extensions.append('.mat')
 
     return extensions
 
 
 def extract_data(value):
-    reposdf = pd.read_hdf('./data/data.h5', 'repos')
+    if osp.exists('./data/data.h5'):
+        reposdf = pd.read_hdf('./data/data.h5', 'repos')
+        repositories = reposdf['Name'].tolist()
+    else:
+        repositories = []
 
-    repositories = reposdf['Name'].tolist()
     try:
         repo = g.get_repo(value)
         languages = repo.get_languages()
@@ -256,9 +273,6 @@ def extract_data(value):
                 fname = file.filename
                 if fname.endswith(tuple(lang_exts)):
                     dates.append(date)
-                    # if '/' in fname:
-                    #     fsplit = fname.split('/')
-                    #     fname = fsplit[len(fsplit) - 1]
                     filenames.append(fname)
                     totals.append(file.changes)
                     adds.append(file.additions)

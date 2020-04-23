@@ -1,4 +1,5 @@
 from urllib.parse import quote
+import os.path as osp
 
 import pandas as pd
 import numpy as np
@@ -10,8 +11,11 @@ from dash.dependencies import Input, Output
 
 from app import app
 
-reposdf = pd.read_hdf('./data/data.h5', 'repos')
-available_repositories = reposdf['Name'].unique()
+if osp.exists('./data/data.h5'):
+    reposdf = pd.read_hdf('./data/data.h5', 'repos')
+    available_repositories = reposdf['Name'].unique()
+else:
+    available_repositories = []
 abstractions = ["File Level", "Directory Level"]
 
 styles = {
@@ -87,8 +91,11 @@ layout = html.Div([
     Output('repository_title', 'options'),
     [Input('repository_title', 'value')])
 def update_dropdown(repotitle):
-    repos = pd.read_hdf('./data/data.h5', 'repos')
-    available_repos = repos['Name'].unique()
+    if osp.exists('./data/data.h5'):
+        repos = pd.read_hdf('./data/data.h5', 'repos')
+        available_repos = repos['Name'].unique()
+    else:
+        available_repos = []
     return [{'label': i, 'value': i} for i in available_repos]
 
 
@@ -111,10 +118,10 @@ def update_table(repotitle):
         df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
         df_p = df.groupby("Filename").sum()
         df_p = df_p.sort_values(by=['Total'], ascending=False)
-        package_count = df_p['Total'].count()
+        directory_count = df_p['Total'].count()
 
         stats_1 = ["Directories", "Files", "Change (LOC)"]
-        counts_1 = [package_count, file_count, change]
+        counts_1 = [directory_count, file_count, change]
         data_1 = {'': stats_1, 'Count': counts_1}
         df_1 = pd.DataFrame(data=data_1)
 
@@ -145,8 +152,9 @@ def update_linechart(repotitle, abstraction, hoverData):
         df = pd.read_hdf('./data/data.h5', repotitle)
 
         if hoverData is not None:
-            if abstraction == "Package Level":
+            if abstraction == "Directory Level":
                 df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
+                df.loc[df['Filename'].str.contains('.', regex=False), 'Filename'] = '.'
             df = df.loc[df['Filename'] == hoverData['points'][0]['x']]
             title = "LOC Change p/month: " + hoverData['points'][0]['x']
         else:
@@ -181,8 +189,9 @@ def update_file_chart_hover(hoverData, abstraction, repotitle):
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
-        if abstraction == "Package Level":
+        if abstraction == "Directory Level":
             df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
+            df.loc[df['Filename'].str.contains('.', regex=False), 'Filename'] = '.'
 
         if hoverData is not None:
             month = hoverData['points'][0]['x']
@@ -210,13 +219,14 @@ def update_file_chart_hover(hoverData, abstraction, repotitle):
      Input('abstraction', 'value'),
      Input('line_chart', 'selectedData')])
 def update_file_charts(repotitle, abstraction, selectedData):
-    if selectedData is None:
-        return "", "", ""
+    if selectedData is None or repotitle is None:
+        raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
-        if abstraction == "Package Level":
+        if abstraction == "Directory Level":
             df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
+            df.loc[df['Filename'].str.contains('.', regex=False), 'Filename'] = '.'
 
         points = len(selectedData['points'])
         months = []
@@ -254,12 +264,15 @@ def update_file_charts(repotitle, abstraction, selectedData):
     [Input('repository_title', 'value'),
      Input('abstraction', 'value')])
 def update_download_link(repotitle, abstraction):
-    df = pd.read_hdf('./data/data.h5', repotitle)
-    if abstraction == "Package Level":
-        df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
-    csv_string = df.to_csv(index=True, encoding='utf-8')
-    csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
-    return csv_string
+    if repotitle is None:
+        raise dash.exceptions.PreventUpdate
+    else:
+        df = pd.read_hdf('./data/data.h5', repotitle)
+        if abstraction == "Directory Level":
+            df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
+        csv_string = df.to_csv(index=True, encoding='utf-8')
+        csv_string = "data:text/csv;charset=utf-8," + quote(csv_string)
+        return csv_string
 
 
 """ [functions] """
@@ -372,7 +385,7 @@ def get_month_data(df, month):
     for file in df.index.tolist():
         split = file.split()
         filenames.append(split[1])
-        filenumbers.append(split[0])
+        filenumbers.append("(" + split[0] + ")")
     filetotals = df['Total'].tolist()
     del filenames[10:]
     del filenumbers[10:]
