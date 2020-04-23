@@ -19,7 +19,8 @@ h1, h2, h3, h4 {
 
 .about {
   display: inline-block;
-  width: 50%
+  width: 60%;
+  padding: 20px;
 }
 
 #search_api, #core_api, #rate_limit {

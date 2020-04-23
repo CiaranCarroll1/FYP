@@ -56,7 +56,7 @@ layout = html.Div([
                     [
                         dbc.FormGroup(
                             [
-                                html.H4(dbc.Label("Search Repositories using Keywords")),
+                                html.H4(dbc.Label("Search GitHub Repositories using Keywords")),
                                 dbc.Input(placeholder="Enter keywords...", id='left-input-box', type="text"),
                                 dbc.FormText("(format : 'keyword, keyword etc.')"),
                             ]
@@ -82,7 +82,7 @@ layout = html.Div([
                     [
                         dbc.FormGroup(
                             [
-                                html.H4(dbc.Label("Enter Repository to Extract Data")),
+                                html.H4(dbc.Label("Enter GitHub Repository to Extract Data")),
                                 dbc.Input(placeholder="Enter repository...", id='right-input-box', type="text"),
                                 dbc.FormText("(format : 'owner/name')"),
                             ]
