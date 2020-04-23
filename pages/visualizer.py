@@ -12,7 +12,7 @@ from app import app
 
 reposdf = pd.read_hdf('./data/data.h5', 'repos')
 available_repositories = reposdf['Name'].unique()
-abstractions = ["File Level", "Package Level"]
+abstractions = ["File Level", "Directory Level"]
 
 styles = {
     'pre': {
@@ -113,24 +113,19 @@ def update_table(repotitle):
         df_p = df_p.sort_values(by=['Total'], ascending=False)
         package_count = df_p['Total'].count()
 
-        stats_1 = ["Packages", "Files", "Change (LOC)"]
+        stats_1 = ["Directories", "Files", "Change (LOC)"]
         counts_1 = [package_count, file_count, change]
         data_1 = {'': stats_1, 'Count': counts_1}
         df_1 = pd.DataFrame(data=data_1)
 
         _20p_files = round(file_count * 0.2)
-        _20p_packages = round(package_count * 0.2)
         file_totals = df_f['Total'].tolist()
-        package_totals = df_p['Total'].tolist()
         del file_totals[int(_20p_files):]
-        del package_totals[int(_20p_packages):]
         change_20p_files = sum(file_totals)
-        change_20p_packages = sum(file_totals)
         file_percent = round((change_20p_files / change) * 100)
-        package_percent = round((change_20p_packages / change) * 100)
 
-        stats_2 = ["% Change (LOC) in 20% Files", "% Change (LOC) in 20% Packages"]
-        percents_2 = [file_percent, package_percent]
+        stats_2 = ["% Change (LOC) in 20% Files"]
+        percents_2 = [file_percent]
         data_2 = {'Pareto Principle': stats_2, 'Percent': percents_2}
         df_2 = pd.DataFrame(data=data_2)
 
@@ -225,6 +220,18 @@ def update_file_charts(repotitle, abstraction, selectedData):
 
         points = len(selectedData['points'])
         months = []
+        fnames = df['Filename'].tolist()
+
+        count = 1
+        for i, file_i in enumerate(fnames):
+            if not fnames[i][0].isdigit():
+                for j, file_j in enumerate(fnames):
+                    if file_i == file_j and not i == j:
+                        fnames[j] = str(count) + " " + fnames[j]
+                fnames[i] = str(count) + " " + fnames[i]
+                count += 1
+                
+        df['Filename'] = fnames
 
         for x in range(points):
             month = selectedData['points'][x]['x']
@@ -322,14 +329,16 @@ def createfilechart(data):
             figure={
                 'data': [
                     {
-                        'x': data[0],
+                        'x': data[2],
                         'y': data[1],
+                        'hovertext': data[0],
                         'type': 'bar',
                         'name': 'Total',
                     },
                 ],
                 'layout': {
-                    'title': 'Greatest Change: ' + data[2],
+                    'title': 'Greatest Change: ' + data[3],
+                    'xaxis': {'type': 'category'},
                     'paper_bgcolor': 'rgba(0,0,0,0)',
                     'plot_bgcolor': 'rgba(0,0,0,0)',
                     'font': {'color': 'black'},
@@ -356,11 +365,17 @@ def get_month_data(df, month):
     df['Date'] = df.Date.astype(str)
     df = df.loc[df['Date'] == month]
     month = month[:-3]
-    df = df.groupby("Filename").sum()
+    df = df.groupby(['Filename']).sum()
     df = df.sort_values(by=['Total'], ascending=False)
-    filenames = df.index.tolist()
+    filenames = []
+    filenumbers = []
+    for file in df.index.tolist():
+        split = file.split()
+        filenames.append(split[1])
+        filenumbers.append(split[0])
     filetotals = df['Total'].tolist()
     del filenames[10:]
+    del filenumbers[10:]
     del filetotals[10:]
 
-    return filenames, filetotals, month
+    return filenames, filetotals, filenumbers, month
