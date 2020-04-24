@@ -276,11 +276,11 @@ def extract_data(value):
             for file in files:
                 fname = file.filename
                 if fname.endswith(tuple(lang_exts)):
-                    dates.append(date)
-                    filenames.append(fname)
-                    totals.append(file.changes)
-                    adds.append(file.additions)
-                    dels.append(file.deletions)
+                        dates.append(date)
+                        filenames.append(fname)
+                        totals.append(file.changes)
+                        adds.append(file.additions)
+                        dels.append(file.deletions)
 
         data = {'Date': dates, 'Filename': filenames, 'Total': totals, 'Additions': adds, 'Deletions': dels}
         df = pd.DataFrame(data=data)

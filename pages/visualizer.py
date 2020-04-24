@@ -332,7 +332,7 @@ def createfilecharthover(filenames, filetotals, title):
             },
         ],
         'layout': {
-            'title': 'LOC Change p/file: ' + title,
+            'title': 'LOC Change p/f: ' + title,
             'paper_bgcolor': 'rgba(0,0,0,0)',
             'plot_bgcolor': 'rgba(0,0,0,0)',
             'font': {'color': 'black'},
