@@ -7,8 +7,8 @@ g = Github(ACCESS_TOKEN)
 
 
 def extract(value):
-    if os.path.exists('/data/data.h5'):
-        reposdf = pd.read_hdf('/data/data.h5', 'repos')
+    if os.path.exists('../data/data.h5'):
+        reposdf = pd.read_hdf('../data/data.h5', 'repos')
         repositories = reposdf['Name'].tolist()
     else:
         repositories = []
