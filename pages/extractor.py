@@ -11,7 +11,7 @@ from dash.dependencies import Input, Output, State
 
 from app import app
 
-ACCESS_TOKEN = '85d6ef18098b400a2e6d52bc44867ebc06053de7'
+ACCESS_TOKEN = '1f7f3a4784dd2415163831c7fed81b3e29ba8570'
 g = Github(ACCESS_TOKEN)
 
 

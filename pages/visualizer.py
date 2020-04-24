@@ -208,15 +208,12 @@ def update_file_chart_hover(hoverData, abstraction, repotitle):
 
         df = df.groupby("Filename").sum()
         file_count = df['Total'].count()
-        if file_count > 80:
-            _20p_files = int(round(file_count * 0.2))
-            df = df.sort_values(by=['Total'], ascending=False)
-            if _20p_files >= 10:
-                df = df.head(_20p_files)
-            else:
-                df = df.head(10)
+        _20p_files = int(round(file_count * 0.2))
+        df = df.sort_values(by=['Total'], ascending=False)
+        if _20p_files >= 10:
+            df = df.head(_20p_files)
         else:
-            df = df.sort_values(by=['Total'], ascending=False)
+            df = df.head(10)
 
         filenames = df.index.tolist()
         filetotals = df['Total'].tolist()
