@@ -64,11 +64,10 @@ layout = html.Div(className="body", children=[
                         html.P('''
                             The Visualizer provides interactive visualizations for the user to explore the data held for
                             different repositories. You can decide which repository to explore and whether to do so on 
-                            file or folder level. The initial Line Chart and Bar Charts influence each other when the 
-                            opposite graph is hovered over. There is also the possibility to compare different months by 
-                            clicking on different points on the Line Chart. This will create further bar charts below with
-                            each bar numbered with the number representing a particular file or folder which makes 
-                            comparing the graphs simpler.
+                            file or folder level. Once selected a table holding a count for folders, files and LOC 
+                            changes for the repo will be displayed along with a figure for a proposed Pareto Principle 
+                            hypothesis. There are also multiple interactive graphs for exploring the location of change 
+                            over time.
                         '''),
                     ]),
                 ])

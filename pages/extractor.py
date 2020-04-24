@@ -11,7 +11,7 @@ from dash.dependencies import Input, Output, State
 
 from app import app
 
-ACCESS_TOKEN = '821f643807b3d0078f309d35531c7e59d577aa43'
+ACCESS_TOKEN = '85d6ef18098b400a2e6d52bc44867ebc06053de7'
 g = Github(ACCESS_TOKEN)
 
 
@@ -73,9 +73,9 @@ layout = html.Div([
                         ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='left-output-container', children=[
-                                html.Div(id='search_api'),
-                                html.Div(id='core_api'),
-                                html.Br(),
+                                html.Div(id='search_api', style={'display': 'none'}),
+                                html.Div(id='core_api', style={'display': 'none'}),
+                                # html.Br(),
                                 html.Div(id='repos-found'),
                                 html.Div(id='datatable')
                             ])
@@ -94,8 +94,8 @@ layout = html.Div([
                         dbc.Button("Submit", color="primary", className="mr-1", id='right-button'),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='right-output-container', children=[
-                                html.Div(id='rate_limit'),
-                                html.Br(),
+                                html.Div(id='rate_limit', style={'display': 'none'}),
+                                # html.Br(),
                                 html.Div(id='extract_result')
                             ])
                         ], type="default")

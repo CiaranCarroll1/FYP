@@ -117,6 +117,8 @@ def update_table(repotitle):
         change = df_f['Total'].sum()
 
         df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
+        df.loc[df['Filename'].str.contains('.', regex=False), 'Filename'] = ''
+        df['Filename'] = df['Filename'].astype(str) + '/'
         df_p = df.groupby("Filename").sum()
         df_p = df_p.sort_values(by=['Total'], ascending=False)
         folder_count = df_p['Total'].count()
