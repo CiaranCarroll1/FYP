@@ -1,5 +1,5 @@
 from urllib.parse import quote
-import os.path as osp
+import os
 
 import pandas as pd
 import numpy as np
@@ -11,7 +11,7 @@ from dash.dependencies import Input, Output
 
 from app import app
 
-if osp.exists('./data/data.h5'):
+if os.path.exists('./data/data.h5'):
     reposdf = pd.read_hdf('./data/data.h5', 'repos')
     available_repositories = reposdf['Name'].unique()
 else:
@@ -92,7 +92,7 @@ layout = html.Div([
     Output('repository_title', 'options'),
     [Input('repository_title', 'value')])
 def update_dropdown(repotitle):
-    if osp.exists('./data/data.h5'):
+    if os.path.exists('./data/data.h5'):
         repos = pd.read_hdf('./data/data.h5', 'repos')
         available_repos = repos['Name'].unique()
     else:

@@ -50,8 +50,8 @@ layout = html.Div(className="body", children=[
                             The Extractor page is split into two sides. On the left, you will find a search feature which returns
                             the names and commit count of repositories which hold the keywords submitted. The 
                             application will search for these keywords in the name, description and README file of all public 
-                            GitHub repositories. Results are sorted by best match, as indicated by the score field for each 
-                            item returned. If there is a large quantity of results, the first fifty best matches will be displayed.
+                            GitHub repositories. Results are sorted by best match, as indicated by a score field which is 
+                            returned with each result. If there is a large quantity of results, the first fifty best matches will be displayed.
                             On the right side, a unique owner/name repository identification string can be entered and the 
                             application will mine and store the relevant change data which can then be visualized on the 
                             Visualizer page.
