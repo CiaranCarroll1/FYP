@@ -73,9 +73,9 @@ layout = html.Div([
                         ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='left-output-container', children=[
-                                html.Div(id='search_api', style={'display': 'none'}),
-                                html.Div(id='core_api', style={'display': 'none'}),
-                                # html.Br(),
+                                html.Div(id='search_api'),
+                                html.Div(id='core_api'),
+                                html.Br(),
                                 html.Div(id='repos-found'),
                                 html.Div(id='datatable')
                             ])
@@ -94,8 +94,8 @@ layout = html.Div([
                         dbc.Button("Submit", color="primary", className="mr-1", id='right-button'),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='right-output-container', children=[
-                                html.Div(id='rate_limit', style={'display': 'none'}),
-                                # html.Br(),
+                                html.Div(id='rate_limit'),
+                                html.Br(),
                                 html.Div(id='extract_result')
                             ])
                         ], type="default")
@@ -302,5 +302,8 @@ def extract_data(value):
                'Completed: Visit Visualizer to Examine Data.'
 
     except GithubException as e:
-        return "Error: Invalid Input Details", f'Status: {e.status} - Data: {e.data}'
+        rate_limit = g.get_rate_limit()
+        rate = rate_limit.core
 
+        return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
+               f'Error: {e.data["message"]}'
