@@ -55,7 +55,6 @@ layout = html.Div([
             dcc.Dropdown(
                 id='abstraction',
                 options=[{'label': i, 'value': i} for i in abstractions],
-                # value=abstractions[0],
                 placeholder='Select Abstraction...'
             ),
             html.Br(),
@@ -110,7 +109,7 @@ def update_dropdown(repotitle):
     [Input('repository_title', 'value')])
 def update_table(repotitle):
     if repotitle is None:
-        raise dash.exceptions.PreventUpdate
+        return {'display': 'none'}, None, None
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
@@ -154,7 +153,7 @@ def update_table(repotitle):
      Input('file_chart_hover', 'hoverData')])
 def update_linechart(repotitle, abstraction, hoverData):
     if repotitle is None or abstraction is None:
-        raise dash.exceptions.PreventUpdate
+        return None
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
@@ -193,7 +192,7 @@ def update_linechart(repotitle, abstraction, hoverData):
      Input('repository_title', 'value')])
 def update_file_chart_hover(hoverData, abstraction, repotitle):
     if repotitle is None or abstraction is None:
-        raise dash.exceptions.PreventUpdate
+        return None
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
@@ -234,7 +233,7 @@ def update_file_chart_hover(hoverData, abstraction, repotitle):
      Input('line_chart', 'selectedData')])
 def update_file_charts(repotitle, abstraction, selectedData):
     if selectedData is None or repotitle is None or abstraction is None:
-        raise dash.exceptions.PreventUpdate
+        return None, None, None
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
@@ -280,7 +279,7 @@ def update_file_charts(repotitle, abstraction, selectedData):
      Input('abstraction', 'value')])
 def update_download_link(repotitle, abstraction):
     if repotitle is None or abstraction is None:
-        raise dash.exceptions.PreventUpdate
+        return None
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
         if abstraction == "Folder Level":
