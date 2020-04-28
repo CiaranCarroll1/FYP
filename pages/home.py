@@ -11,7 +11,7 @@ layout = html.Div(className="body", children=[
     dbc.Nav(
         [
             html.H5('ChangeVisualizer', className='header'),
-            dbc.NavItem(dbc.NavLink('Home', active=True, href='/home')),
+            dbc.NavItem(dbc.NavLink('Home', active=True, href='/')),
             dbc.NavItem(dbc.NavLink('Extractor', href='/extractor')),
             dbc.NavItem(dbc.NavLink('Visualizer', href='/visualizer')),
         ],

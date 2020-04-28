@@ -32,7 +32,7 @@ layout = html.Div([
     dbc.Nav(
         [
             html.H5('ChangeVisualizer', className='header'),
-            dbc.NavItem(dbc.NavLink('Home', href='/home')),
+            dbc.NavItem(dbc.NavLink('Home', href='/')),
             dbc.NavItem(dbc.NavLink('Extractor', href='/extractor')),
             dbc.NavItem(dbc.NavLink('Visualizer', active=True, href='/visualiser')),
         ],
@@ -55,17 +55,20 @@ layout = html.Div([
             dcc.Dropdown(
                 id='abstraction',
                 options=[{'label': i, 'value': i} for i in abstractions],
-                value=abstractions[0],
+                # value=abstractions[0],
                 placeholder='Select Abstraction...'
             ),
             html.Br(),
-            html.A(
-                'Download Data as CSV',
-                id='download-link',
-                download="rawdata.csv",
-                href="",
-                target="_blank"
-            ),
+            html.Div(id='download-div', children=[
+                html.A(
+                    'Download Data as CSV',
+                    id='download-link',
+                    download="rawdata.csv",
+                    href="",
+                    target="_blank"
+                ),
+                ], style={'display': 'none'}
+            )
         ]),
         html.Div(id='table'),
         html.Div(id='pareto_percents'),
@@ -100,6 +103,7 @@ def update_dropdown(repotitle):
 
 
 @app.callback([
+    Output('download-div', 'style'),
     Output('table', 'children'),
     Output('pareto_percents', 'children'),
 ],
@@ -138,7 +142,8 @@ def update_table(repotitle):
         data_2 = {'Pareto Principle': stats_2, 'Percent': percents_2}
         df_2 = pd.DataFrame(data=data_2)
 
-        return dbc.Table.from_dataframe(df_1, bordered=True, hover=True, size='sm', style={'border': 'solid'}), \
+        return {'display': 'block'}, \
+               dbc.Table.from_dataframe(df_1, bordered=True, hover=True, size='sm', style={'border': 'solid'}), \
                dbc.Table.from_dataframe(df_2, bordered=True, hover=True, size='sm', style={'border': 'solid'})
 
 
@@ -148,7 +153,7 @@ def update_table(repotitle):
      Input('abstraction', 'value'),
      Input('file_chart_hover', 'hoverData')])
 def update_linechart(repotitle, abstraction, hoverData):
-    if repotitle is None:
+    if repotitle is None or abstraction is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
@@ -187,7 +192,7 @@ def update_linechart(repotitle, abstraction, hoverData):
      Input('abstraction', 'value'),
      Input('repository_title', 'value')])
 def update_file_chart_hover(hoverData, abstraction, repotitle):
-    if repotitle is None:
+    if repotitle is None or abstraction is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
@@ -228,7 +233,7 @@ def update_file_chart_hover(hoverData, abstraction, repotitle):
      Input('abstraction', 'value'),
      Input('line_chart', 'selectedData')])
 def update_file_charts(repotitle, abstraction, selectedData):
-    if selectedData is None or repotitle is None:
+    if selectedData is None or repotitle is None or abstraction is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
@@ -250,7 +255,7 @@ def update_file_charts(repotitle, abstraction, selectedData):
                         fnames[j] = str(count) + " " + fnames[j]
                 fnames[i] = str(count) + " " + fnames[i]
                 count += 1
-                
+
         df['Filename'] = fnames
 
         for x in range(points):
@@ -274,7 +279,7 @@ def update_file_charts(repotitle, abstraction, selectedData):
     [Input('repository_title', 'value'),
      Input('abstraction', 'value')])
 def update_download_link(repotitle, abstraction):
-    if repotitle is None:
+    if repotitle is None or abstraction is None:
         raise dash.exceptions.PreventUpdate
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)

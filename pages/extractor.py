@@ -24,7 +24,7 @@ layout = html.Div([
     dbc.Nav(
         [
             html.H5('ChangeVisualizer', className='header'),
-            dbc.NavItem(dbc.NavLink('Home', href='/home')),
+            dbc.NavItem(dbc.NavLink('Home', href='/')),
             dbc.NavItem(dbc.NavLink('Extractor', active=True, href='/extractor')),
             dbc.NavItem(dbc.NavLink('Visualizer', href='/visualizer')),
         ],

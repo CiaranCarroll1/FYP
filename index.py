@@ -19,8 +19,10 @@ def display_page(pathname):
         return extractor.layout
     elif pathname == '/visualizer':
         return visualizer.layout
-    else:
+    elif pathname == '/':
         return home.layout
+    else:
+        return '404'
 
 
 if __name__ == '__main__':
