@@ -50,7 +50,6 @@ layout = html.Div([
             dcc.Dropdown(
                 id='repository_title',
                 options=[{'label': i, 'value': i} for i in available_repositories],
-                value=available_repositories[0],
                 placeholder='Select Repository...'
             ),
             dcc.Dropdown(
@@ -73,8 +72,8 @@ layout = html.Div([
     ]),
 
     dbc.Row([
-        dbc.Col(dcc.Graph(id='line_chart', clear_on_unhover=True)),
-        dbc.Col(dcc.Graph(id='file_chart_hover', clear_on_unhover=True))
+        dbc.Col(html.Div(id='line_chart')),
+        dbc.Col(html.Div(id='file_chart_hover'))
     ]),
 
     dbc.Row([
@@ -144,7 +143,7 @@ def update_table(repotitle):
 
 
 @app.callback(
-    Output('line_chart', 'figure'),
+    Output('line_chart', 'children'),
     [Input('repository_title', 'value'),
      Input('abstraction', 'value'),
      Input('file_chart_hover', 'hoverData')])
@@ -183,7 +182,7 @@ def update_linechart(repotitle, abstraction, hoverData):
 
 
 @app.callback(
-    Output('file_chart_hover', 'figure'),
+    Output('file_chart_hover', 'children'),
     [Input('line_chart', 'hoverData'),
      Input('abstraction', 'value'),
      Input('repository_title', 'value')])
@@ -224,8 +223,7 @@ def update_file_chart_hover(hoverData, abstraction, repotitle):
 @app.callback([
     Output('filemonth1', 'children'),
     Output('filemonth2', 'children'),
-    Output('filemonth3', 'children')
-    ],
+    Output('filemonth3', 'children')],
     [Input('repository_title', 'value'),
      Input('abstraction', 'value'),
      Input('line_chart', 'selectedData')])
@@ -293,60 +291,72 @@ def update_download_link(repotitle, abstraction):
 
 
 def createlinechart(dates, totals, adds, dels, title):
-    return {
-        'data': [
-            {
-                'x': dates,
-                'y': totals,
-                'mode': 'lines+markers',
-                'name': 'Total'
-            },
-            {
-                'x': dates,
-                'y': adds,
-                'mode': 'lines+markers',
-                'name': 'Additions'
-            },
-            {
-                'x': dates,
-                'y': dels,
-                'mode': 'lines+markers',
-                'name': 'Deletions'
-            },
-        ],
-        'layout': {
-            'title': title,
-            'clickmode': 'event+select',
-            'hovermode': 'closest',
-            'hovermode': 'x',
-            'plot_bgcolor': 'rgba(0,0,0,0)',
-            'paper_bgcolor': 'rgba(0,0,0,0)',
-            'font': {'color': 'black'},
-            'margin': dict(b=100),
-        }
-    }
+    return [
+        dcc.Graph(
+            clear_on_unhover=True,
+            figure={
+                'data': [
+                    {
+                        'x': dates,
+                        'y': totals,
+                        'mode': 'lines+markers',
+                        'name': 'Total'
+                    },
+                    {
+                        'x': dates,
+                        'y': adds,
+                        'mode': 'lines+markers',
+                        'name': 'Additions'
+                    },
+                    {
+                        'x': dates,
+                        'y': dels,
+                        'mode': 'lines+markers',
+                        'name': 'Deletions'
+                    },
+                ],
+                'layout': {
+                    'title': title,
+                    'clickmode': 'event+select',
+                    'hovermode': 'closest',
+                    'hovermode': 'x',
+                    'plot_bgcolor': 'rgba(0,0,0,0)',
+                    'paper_bgcolor': 'rgba(0,0,0,0)',
+                    'font': {'color': 'black'},
+                    'margin': dict(b=100),
+                }
+            }
+        )
+    ]
+
 
 
 def createfilecharthover(filenames, filetotals, title):
-    return {
-        'data': [
-            {
-                'x': filenames,
-                'y': filetotals,
-                'type': 'bar',
-                'name': 'Total',
-            },
-        ],
-        'layout': {
-            'title': 'LOC Change p/f: ' + title,
-            'paper_bgcolor': 'rgba(0,0,0,0)',
-            'plot_bgcolor': 'rgba(0,0,0,0)',
-            'font': {'color': 'black'},
-            'margin': dict(
-                b=100
-            ),
-        }
-    }
+    return [
+        dcc.Graph(
+            clear_on_unhover=True,
+            figure={
+                'data': [
+                    {
+                        'x': filenames,
+                        'y': filetotals,
+                        'type': 'bar',
+                        'name': 'Total',
+                    },
+                ],
+                'layout': {
+                    'title': 'LOC Change p/f: ' + title,
+                    'paper_bgcolor': 'rgba(0,0,0,0)',
+                    'plot_bgcolor': 'rgba(0,0,0,0)',
+                    'font': {'color': 'black'},
+                    'margin': dict(
+                        b=100
+                    ),
+                }
+            }
+        )
+    ]
+
 
 
 def createfilechart(data):
@@ -376,16 +386,6 @@ def createfilechart(data):
             }
         ),
     ]
-
-
-def get_layout():
-    return {
-        'layout': {
-            'font': {'color': 'black'},
-            'plot_bgcolor': 'rgba(0,0,0,0)',
-            'paper_bgcolor': 'rgba(0,0,0,0)',
-        }
-    }
 
 
 def get_month_data(df, month):

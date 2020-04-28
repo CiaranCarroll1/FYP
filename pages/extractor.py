@@ -1,4 +1,5 @@
 import os
+import pickle
 
 from github import Github, GithubException
 import pandas as pd
@@ -11,8 +12,9 @@ from dash.dependencies import Input, Output, State
 
 from app import app
 
-ACCESS_TOKEN = '1f7f3a4784dd2415163831c7fed81b3e29ba8570'
-g = Github(ACCESS_TOKEN)
+pickle_in = open("./api_key.pkl", "rb")
+api = pickle.load(pickle_in)
+g = Github(api['key'])
 
 
 """ [Layout] """
@@ -32,25 +34,6 @@ layout = html.Div([
             'margin-bottom': '20px',
             'padding': '10px'
         }
-    ),
-
-    html.Div(id='task-id', children='none', style={'display': 'none'}),
-    html.Div(id='task-status', children='task-status', style={'display': 'none'}),
-    dcc.Interval(id='task-interval', interval=250, n_intervals=0),
-
-    dbc.Modal(
-        [
-            dbc.ModalHeader("How Search Results are Ranked"),
-            dbc.ModalBody("""
-                Results are sorted by best match, as indicated by a score field which is returned with each result. This is 
-                a computed value representing the relevance of an item relative to the other items in the result set. 
-                Multiple factors are combined to boost the most relevant item to the top of the result list.
-                """),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close", className="ml-auto")
-            ),
-        ],
-        id="modal",
     ),
 
     html.Div(className='container', children=[
@@ -104,6 +87,21 @@ layout = html.Div([
             ]
         ),
     ]),
+
+    dbc.Modal(
+        [
+            dbc.ModalHeader("How Search Results are Ranked"),
+            dbc.ModalBody("""
+                Results are sorted by best match, as indicated by a score field which is returned with each result. This is 
+                a computed value representing the relevance of an item relative to the other items in the result set. 
+                Multiple factors are combined to boost the most relevant item to the top of the result list.
+                """),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close", className="ml-auto")
+            ),
+        ],
+        id="modal",
+    ),
 ])
 
 
