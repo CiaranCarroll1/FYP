@@ -1,8 +1,8 @@
 from urllib.parse import quote
 import os
-
 import pandas as pd
 import numpy as np
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -22,6 +22,16 @@ styles = {
     'pre': {
         'border': 'thin lightgrey solid',
         'overflowX': 'scroll'
+    }
+}
+
+invisible_figure = {
+    'layout': {
+        'plot_bgcolor': 'rgba(0,0,0,0)',
+        'paper_bgcolor': 'rgba(0,0,0,0)',
+        'font': {'color': 'rgba(0,0,0,0)'},
+        'xaxis': {'showgrid':False, 'showline':False, 'zeroline':False,},
+        'yaxis': {'showgrid':False, 'showline':False, 'zeroline':False,},
     }
 }
 
@@ -74,8 +84,8 @@ layout = html.Div([
     ]),
 
     dbc.Row([
-        dbc.Col(html.Div(id='line_chart')),
-        dbc.Col(html.Div(id='file_chart_hover'))
+        dbc.Col(dcc.Graph(id='line_chart', clear_on_unhover=True, figure=invisible_figure)),
+        dbc.Col(dcc.Graph(id='file_chart_hover', clear_on_unhover=True, figure=invisible_figure))
     ]),
 
     dbc.Row([
@@ -113,17 +123,17 @@ def update_table(repotitle):
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
-        df_f = df.groupby("Filename").sum()
-        df_f = df_f.sort_values(by=['Total'], ascending=False)
-        file_count = df_f['Total'].count()
-        change = df_f['Total'].sum()
+        df_file = df.groupby("Filename").sum()
+        df_file = df_file.sort_values(by=['Total'], ascending=False)
+        file_count = df_file['Total'].count()
+        change = df_file['Total'].sum()
 
         df['Filename'] = df['Filename'].str.rsplit("/", 1).str[0]
         df.loc[df['Filename'].str.contains('.', regex=False), 'Filename'] = ''
         df['Filename'] = df['Filename'].astype(str) + '/'
-        df_p = df.groupby("Filename").sum()
-        df_p = df_p.sort_values(by=['Total'], ascending=False)
-        folder_count = df_p['Total'].count()
+        df_folder = df.groupby("Filename").sum()
+        df_folder = df_folder.sort_values(by=['Total'], ascending=False)
+        folder_count = df_folder['Total'].count()
 
         stats_1 = ["Folders", "Files", "Change (LOC)"]
         counts_1 = [folder_count, file_count, change]
@@ -131,7 +141,7 @@ def update_table(repotitle):
         df_1 = pd.DataFrame(data=data_1)
 
         _20p_files = round(file_count * 0.2)
-        file_totals = df_f['Total'].tolist()
+        file_totals = df_file['Total'].tolist()
         del file_totals[int(_20p_files):]
         change_20p_files = sum(file_totals)
         file_percent = round((change_20p_files / change) * 100)
@@ -147,13 +157,13 @@ def update_table(repotitle):
 
 
 @app.callback(
-    Output('line_chart', 'children'),
+    Output('line_chart', 'figure'),
     [Input('repository_title', 'value'),
      Input('abstraction', 'value'),
      Input('file_chart_hover', 'hoverData')])
 def update_linechart(repotitle, abstraction, hoverData):
     if repotitle is None or abstraction is None:
-        return None
+        return invisible_figure
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
@@ -186,13 +196,13 @@ def update_linechart(repotitle, abstraction, hoverData):
 
 
 @app.callback(
-    Output('file_chart_hover', 'children'),
+    Output('file_chart_hover', 'figure'),
     [Input('line_chart', 'hoverData'),
      Input('abstraction', 'value'),
      Input('repository_title', 'value')])
 def update_file_chart_hover(hoverData, abstraction, repotitle):
     if repotitle is None or abstraction is None:
-        return None
+        return invisible_figure
     else:
         df = pd.read_hdf('./data/data.h5', repotitle)
 
@@ -295,72 +305,60 @@ def update_download_link(repotitle, abstraction):
 
 
 def createlinechart(dates, totals, adds, dels, title):
-    return [
-        dcc.Graph(
-            clear_on_unhover=True,
-            figure={
-                'data': [
-                    {
-                        'x': dates,
-                        'y': totals,
-                        'mode': 'lines+markers',
-                        'name': 'Total'
-                    },
-                    {
-                        'x': dates,
-                        'y': adds,
-                        'mode': 'lines+markers',
-                        'name': 'Additions'
-                    },
-                    {
-                        'x': dates,
-                        'y': dels,
-                        'mode': 'lines+markers',
-                        'name': 'Deletions'
-                    },
-                ],
-                'layout': {
-                    'title': title,
-                    'clickmode': 'event+select',
-                    'hovermode': 'closest',
-                    'hovermode': 'x',
-                    'plot_bgcolor': 'rgba(0,0,0,0)',
-                    'paper_bgcolor': 'rgba(0,0,0,0)',
-                    'font': {'color': 'black'},
-                    'margin': dict(b=100),
-                }
-            }
-        )
-    ]
-
+    return {
+        'data': [
+            {
+                'x': dates,
+                'y': totals,
+                'mode': 'lines+markers',
+                'name': 'Total'
+            },
+            {
+                'x': dates,
+                'y': adds,
+                'mode': 'lines+markers',
+                'name': 'Additions'
+            },
+            {
+                'x': dates,
+                'y': dels,
+                'mode': 'lines+markers',
+                'name': 'Deletions'
+            },
+        ],
+        'layout': {
+            'title': title,
+            'clickmode': 'event+select',
+            'hovermode': 'closest',
+            'hovermode': 'x',
+            'plot_bgcolor': 'rgba(0,0,0,0)',
+            'paper_bgcolor': 'rgba(0,0,0,0)',
+            'font': {'color': 'black'},
+            'margin': dict(b=100),
+        }
+    }
 
 
 def createfilecharthover(filenames, filetotals, title):
-    return [
-        dcc.Graph(
-            clear_on_unhover=True,
-            figure={
-                'data': [
-                    {
-                        'x': filenames,
-                        'y': filetotals,
-                        'type': 'bar',
-                        'name': 'Total',
-                    },
-                ],
-                'layout': {
-                    'title': 'LOC Change p/f: ' + title,
-                    'paper_bgcolor': 'rgba(0,0,0,0)',
-                    'plot_bgcolor': 'rgba(0,0,0,0)',
-                    'font': {'color': 'black'},
-                    'margin': dict(
-                        b=100
-                    ),
-                }
-            }
-        )
-    ]
-
+    return {
+        'data': [
+            {
+                'x': filenames,
+                'y': filetotals,
+                'type': 'bar',
+                'name': 'Total',
+            },
+        ],
+        'layout': {
+            'title': 'LOC Change p/f: ' + title,
+            'paper_bgcolor': 'rgba(0,0,0,0)',
+            'plot_bgcolor': 'rgba(0,0,0,0)',
+            'font': {'color': 'black'},
+            'margin': dict(
+                b=100
+            ),
+        }
+    }
 
 
 def createfilechart(data):

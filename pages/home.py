@@ -54,7 +54,9 @@ layout = html.Div(className="body", children=[
                             returned with each result. If there is a large quantity of results, the first fifty best matches will be displayed.
                             On the right side, a unique owner/name repository identification string can be entered and the 
                             application will mine and store the relevant change data which can then be visualized on the 
-                            Visualizer page.
+                            Visualizer page. Programming Languages which can be extracted are Python, Java, JavaScript, 
+                            C, C++, C#, Ruby, Swift, HTML, CSS, PHP, SHELL, GO, TypeScript, Objective-C, Kotlin, R, Scala,
+                            Rust, Lua and Matlab.
                         '''
                     ]),
                 ]),
@@ -65,9 +67,10 @@ layout = html.Div(className="body", children=[
                             The Visualizer provides interactive visualizations for the user to explore the data held for
                             different repositories. You can decide which repository to explore and whether to do so on 
                             file or folder level. Once selected a table holding a count for folders, files and LOC 
-                            changes for the repo will be displayed along with a figure for a proposed Pareto Principle 
-                            hypothesis. There are also multiple interactive graphs for exploring the location of change 
-                            over time.
+                            changes for the repo will be displayed. There are also multiple interactive graphs for 
+                            exploring the location of change over time. The page also features a figure for the proposed 
+                            Pareto Principle hypothesis '80% of change in a software development project happens in 20% 
+                            of the files'.
                         '''),
                     ]),
                 ])

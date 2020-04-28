@@ -1,13 +1,12 @@
 import os
 import pickle
-
 from github import Github, GithubException
 import pandas as pd
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-
 from dash.dependencies import Input, Output, State
 
 from app import app
@@ -51,7 +50,7 @@ layout = html.Div([
                         dbc.Row(
                             [
                                 dbc.Col(dbc.Button("Submit", color="primary", className="mr-1", id='left-button')),
-                                dbc.Col(dbc.Button("Info", color="secondary", className="mr-1", id='open')),
+                                dbc.Col(dbc.Button("Info", color="secondary", className="mr-1", id='left-open')),
                             ]
                         ),
                         dcc.Loading(id="loading-icon", children=[
@@ -74,7 +73,12 @@ layout = html.Div([
                                 dbc.FormText("(format : 'owner/name')"),
                             ]
                         ),
-                        dbc.Button("Submit", color="primary", className="mr-1", id='right-button'),
+                        dbc.Row(
+                            [
+                                dbc.Col(dbc.Button("Submit", color="primary", className="mr-1", id='right-button')),
+                                dbc.Col(dbc.Button("Info", color="secondary", className="mr-1", id='right-open')),
+                            ]
+                        ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='right-output-container', children=[
                                 html.Div(id='rate_limit'),
@@ -90,17 +94,33 @@ layout = html.Div([
 
     dbc.Modal(
         [
-            dbc.ModalHeader("How Search Results are Ranked"),
+            dbc.ModalHeader("Search Info"),
             dbc.ModalBody("""
-                Results are sorted by best match, as indicated by a score field which is returned with each result. This is 
-                a computed value representing the relevance of an item relative to the other items in the result set. 
+                Keywords are searched for in the Name, Description and README file of public repositories. 
+                Results are sorted by best match, as indicated by a score field which is returned with each result. This
+                is a computed value representing the relevance of an item relative to the other items in the result set. 
                 Multiple factors are combined to boost the most relevant item to the top of the result list.
                 """),
             dbc.ModalFooter(
-                dbc.Button("Close", id="close", className="ml-auto")
+                dbc.Button("Close", id="left-close", className="ml-auto")
             ),
         ],
-        id="modal",
+        id="left-modal",
+    ),
+
+    dbc.Modal(
+        [
+            dbc.ModalHeader("Extract Info"),
+            dbc.ModalBody("""
+                Extraction data includes date, files and LOC change of each commit for the repository entered. 
+                Programming Languages which can be extracted are Python, Java, JavaScript, C, C++, C#, Ruby, Swift, 
+                HTML, CSS, PHP, SHELL, GO, TypeScript, Objective-C, Kotlin, R, Scala, Rust, Lua and Matlab.
+                """),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="right-close", className="ml-auto")
+            ),
+        ],
+        id="right-modal",
     ),
 ])
 
@@ -112,8 +132,7 @@ layout = html.Div([
     Output('search_api', 'children'),
     Output('core_api', 'children'),
     Output('repos-found', 'children'),
-    Output('datatable', 'children')
-    ],
+    Output('datatable', 'children')],
     [Input('left-button', 'n_clicks')],
     [State('left-input-box', 'value')])
 def update_output(n_clicks, value):
@@ -167,23 +186,79 @@ def update_output(n_clicks, value):
 
 @app.callback([
     Output('rate_limit', 'children'),
-    Output('extract_result', 'children')
-    ],
+    Output('extract_result', 'children')],
     [Input('right-button', 'n_clicks')],
     [State('right-input-box', 'value')])
 def update_output(n_clicks, value):
     if n_clicks is None or value is None:
         raise dash.exceptions.PreventUpdate
     else:
-        rl, result = extract_data(value)
-        return rl, result
+        if os.path.exists('./data/data.h5'):
+            reposdf = pd.read_hdf('./data/data.h5', 'repos')
+            repositories = reposdf['Name'].tolist()
+        else:
+            repositories = []
+
+        try:
+            repo = g.get_repo(value)
+            languages = repo.get_languages()
+            lang_exts = get_extensions(languages)
+            value = value.replace("/", "_")
+            value = value.replace("-", "_")
+            dates, filenames, totals, adds, dels = ([] for i in range(5))
+            commits = repo.get_commits()
+            for commit in commits:
+                date = commit.commit.author.date.date()
+                date = date.replace(day=1)
+                files = commit.files
+                for file in files:
+                    fname = file.filename
+                    if fname.endswith(tuple(lang_exts)):
+                        dates.append(date)
+                        filenames.append(fname)
+                        totals.append(file.changes)
+                        adds.append(file.additions)
+                        dels.append(file.deletions)
+
+            data = {'Date': dates, 'Filename': filenames, 'Total': totals, 'Additions': adds, 'Deletions': dels}
+            df = pd.DataFrame(data=data)
+            df.to_hdf('./data/data.h5', key=value)
+
+            if value not in repositories:
+                repositories.append(value)
+
+            datar = {'Name': repositories}
+            dfr = pd.DataFrame(data=datar)
+            dfr.to_hdf('./data/data.h5', key='repos')
+
+            rate_limit = g.get_rate_limit()
+            rate = rate_limit.core
+
+            return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
+                   'Completed: Visit Visualizer to Explore Data.'
+
+        except GithubException as e:
+            rate_limit = g.get_rate_limit()
+            rate = rate_limit.core
+
+            return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
+                   f'Error: {e.data["message"]}'
 
 
 @app.callback(
-    Output("modal", "is_open"),
-    [Input("open", "n_clicks"), Input("close", "n_clicks")],
-    [State("modal", "is_open")],
-)
+    Output("left-modal", "is_open"),
+    [Input("left-open", "n_clicks"), Input("left-close", "n_clicks")],
+    [State("left-modal", "is_open")])
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("right-modal", "is_open"),
+    [Input("right-open", "n_clicks"), Input("right-close", "n_clicks")],
+    [State("right-modal", "is_open")])
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -243,65 +318,3 @@ def get_extensions(languages):
             extensions.append('.mat')
 
     return extensions
-
-
-def extract_data(value):
-    if os.path.exists('./data/data.h5'):
-        reposdf = pd.read_hdf('./data/data.h5', 'repos')
-        repositories = reposdf['Name'].tolist()
-    else:
-        repositories = []
-
-    try:
-        repo = g.get_repo(value)
-        languages = repo.get_languages()
-        lang_exts = get_extensions(languages)
-        value = value.replace("/", "_")
-        value = value.replace("-", "_")
-        dates = []
-        filenames = []
-        totals = []
-        adds = []
-        dels = []
-
-        commits = repo.get_commits()
-        for commit in commits:
-            date = commit.commit.author.date.date()
-            date = date.replace(day=1)
-
-            files = commit.files
-
-            for file in files:
-                fname = file.filename
-                if fname.endswith(tuple(lang_exts)):
-                        dates.append(date)
-                        filenames.append(fname)
-                        totals.append(file.changes)
-                        adds.append(file.additions)
-                        dels.append(file.deletions)
-
-        data = {'Date': dates, 'Filename': filenames, 'Total': totals, 'Additions': adds, 'Deletions': dels}
-        df = pd.DataFrame(data=data)
-
-        df.to_hdf('./data/data.h5', key=value)
-
-        if value not in repositories:
-            repositories.append(value)
-
-        datar = {'Name': repositories}
-        dfr = pd.DataFrame(data=datar)
-
-        dfr.to_hdf('./data/data.h5', key='repos')
-
-        rate_limit = g.get_rate_limit()
-        rate = rate_limit.core
-
-        return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
-               'Completed: Visit Visualizer to Examine Data.'
-
-    except GithubException as e:
-        rate_limit = g.get_rate_limit()
-        rate = rate_limit.core
-
-        return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
-               f'Error: {e.data["message"]}'
