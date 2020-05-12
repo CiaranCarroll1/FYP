@@ -396,15 +396,13 @@ def get_month_data(df, month):
     month = month[:-3]
     df = df.groupby(['Filename']).sum()
     df = df.sort_values(by=['Total'], ascending=False)
-    filenames = []
-    filenumbers = []
+    df = df.head(10)
+    filenames, filenumbers = ([] for i in range(2))
     for file in df.index.tolist():
         split = file.split()
         filenames.append(split[1])
         filenumbers.append("(" + split[0] + ")")
     filetotals = df['Total'].tolist()
-    del filenames[10:]
-    del filenumbers[10:]
-    del filetotals[10:]
 
     return filenames, filetotals, filenumbers, month
+

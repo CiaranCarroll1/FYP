@@ -1,4 +1,5 @@
 import os
+import time
 import pickle
 from github import Github, GithubException
 import pandas as pd
@@ -55,6 +56,7 @@ layout = html.Div([
                         ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='left-output-container', children=[
+                                html.Div(id='runtime_left'),
                                 html.Div(id='search_api'),
                                 html.Div(id='core_api'),
                                 html.Br(),
@@ -81,6 +83,7 @@ layout = html.Div([
                         ),
                         dcc.Loading(id="loading-icon", children=[
                             html.Div(id='right-output-container', children=[
+                                html.Div(id='runtime_right'),
                                 html.Div(id='rate_limit'),
                                 html.Br(),
                                 html.Div(id='extract_result')
@@ -129,6 +132,7 @@ layout = html.Div([
 
 
 @app.callback([
+    Output('runtime_left', 'children'),
     Output('search_api', 'children'),
     Output('core_api', 'children'),
     Output('repos-found', 'children'),
@@ -139,12 +143,13 @@ def update_output(n_clicks, value):
     if n_clicks is None or value is None:
         raise dash.exceptions.PreventUpdate
     else:
+        start_time = time.perf_counter()
+
         keywords = [keyword.strip() for keyword in value.split(',')]
         query = '+'.join(keywords) + '+in:name+in:readme+in:description'
         result = g.search_repositories(query)
-        repos = []
-        commits = []
 
+        repos, commits = ([] for i in range(2))
         count = 0
         for repo in result:
             url = repo.clone_url
@@ -165,26 +170,31 @@ def update_output(n_clicks, value):
         df = pd.DataFrame(data=data)
 
         try:
-            totalCount = result.totalCount
+            total_count = result.totalCount
         except GithubException:
-            totalCount = 0
+            total_count = 0
 
         rate_limit = g.get_rate_limit()
-        rate = rate_limit.search
-        ratec = rate_limit.core
+        rl_search = rate_limit.search
+        rl_core = rate_limit.core
 
-        if totalCount > 50:
-            found = f'Found {totalCount} repo(s) - Displaying Top 50'
+        if total_count > 50:
+            found = f'Found {total_count} repo(s) - Displaying 50 Best Matches'
         else:
-            found = f'Found {totalCount} repo(s)'
+            found = f'Found {total_count} repo(s)'
 
-        return f'You have {rate.remaining}/{rate.limit} Search API calls remaining. Reset time: {rate.reset}', \
-               f'You have {ratec.remaining}/{ratec.limit} Core API calls remaining. Reset time: {ratec.reset}', \
+        end_time = time.perf_counter()
+        runtime = end_time - start_time
+
+        return f'Runtime: {round(runtime, 3)}s', \
+               f'You have {rl_search.remaining}/{rl_search.limit} Search API calls remaining. Reset time: {rl_search.reset}', \
+               f'You have {rl_core.remaining}/{rl_core.limit} Core API calls remaining. Reset time: {rl_core.reset}', \
                found, \
                dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
 
 
 @app.callback([
+    Output('runtime_right', 'children'),
     Output('rate_limit', 'children'),
     Output('extract_result', 'children')],
     [Input('right-button', 'n_clicks')],
@@ -193,6 +203,8 @@ def update_output(n_clicks, value):
     if n_clicks is None or value is None:
         raise dash.exceptions.PreventUpdate
     else:
+        start_time = time.perf_counter()
+
         if os.path.exists('./data/data.h5'):
             reposdf = pd.read_hdf('./data/data.h5', 'repos')
             repositories = reposdf['Name'].tolist()
@@ -234,14 +246,22 @@ def update_output(n_clicks, value):
             rate_limit = g.get_rate_limit()
             rate = rate_limit.core
 
-            return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
+            end_time = time.perf_counter()
+            runtime = end_time - start_time
+
+            return f'Runtime: {round(runtime, 3)}s',\
+                   f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
                    'Completed: Visit Visualizer to Explore Data.'
 
         except GithubException as e:
             rate_limit = g.get_rate_limit()
             rate = rate_limit.core
 
-            return f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
+            end_time = time.perf_counter()
+            runtime = end_time - start_time
+
+            return f'Runtime: {round(runtime, 3)}s', \
+                   f'You have {rate.remaining}/{rate.limit} API calls remaining. Reset time: {rate.reset}', \
                    f'Error: {e.data["message"]}'
 
 
